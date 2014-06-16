@@ -20,8 +20,11 @@ import javassist.expr.MethodCall;
  * <pre>
  * public class Src {
  * 	private int a;
+ * 
  * 	public Src() {...}
+ * 
  * 	protected b() {...}
+ * 
  * 	protected c() {...}
  * }
  * </pre>
