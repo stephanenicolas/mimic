@@ -16,6 +16,7 @@
 		<maven-javadoc-plugin.version>2.8</maven-javadoc-plugin.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
                 <maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version>
+                <findbugs-maven-plugin.version>2.5.3</findbugs-maven-plugin.version>
 
 		<!--LIBRARIES -->
 		<android-map.version>7_r1</android-map.version>
@@ -135,14 +136,20 @@
                                                 </execution>
                                         </executions>
                                 </plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-			</plugin>
+                                <plugin>
+                                        <groupId>org.codehaus.mojo</groupId>
+                                        <artifactId>findbugs-maven-plugin</artifactId>
+                                        <version>${findbugs-maven-plugin.version}</version>
+                                        <executions>
+                                                <execution>
+                                                        <id>findbugs-check</id>
+                                                        <phase>verify</phase>
+                                                        <goals>
+                                                                <goal>check</goal>
+                                                        </goals>
+                                                </execution>
+                                        </executions>
+                                </plugin>
 
 		</plugins>
 		<pluginManagement>

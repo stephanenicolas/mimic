@@ -113,12 +113,13 @@ public class MimicCreator {
                             try {
                                 // call to super
                                 if (m.getMethodName().equals(method.getName())) {
-                                    String params = "";
-                                    for (int j = 0; j < method
-                                            .getParameterTypes().length; j++) {
-                                        params += " $" + (j + 1);
-                                        params += ",";
+                                    StringBuffer buffer = new StringBuffer();
+                                    for (int j = 0; j < method.getParameterTypes().length; j++) {
+                                        buffer.append(" $");
+                                        buffer.append(j + 1);
+                                        buffer.append(",");
                                     }
+                                    String params = buffer.toString();
                                     if (params.length() > 0) {
                                         params = params.substring(0,
                                                 params.length() - 1);
@@ -159,11 +160,13 @@ public class MimicCreator {
                             + constructor.getName();
                     dst.addMethod(constructor.toMethod(copiedConstructorName,
                             dst));
-                    String params = "";
+                    StringBuffer buffer = new StringBuffer();
                     for (int j = 0; j < constructor.getParameterTypes().length; j++) {
-                        params += " $" + (j + 1);
-                        params += ",";
+                        buffer.append(" $");
+                        buffer.append(j + 1);
+                        buffer.append(",");
                     }
+                    String params = buffer.toString();
                     if (params.length() > 0) {
                         params = params.substring(0, params.length() - 1);
                     }
@@ -186,7 +189,7 @@ public class MimicCreator {
         for (CtField field : src.getDeclaredFields()) {
             if (hasField(dst, field)) {
                 throw new MimicException(String.format(
-                        "Class %s already has a field named %s\n",
+                        "Class %s already has a field named %s %n",
                         dst.getName(), field.getName()));
             }
             dst.addField(new CtField(field, dst));
