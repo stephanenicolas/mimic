@@ -1,10 +1,9 @@
 package com.github.stephanenicolas.mimic;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import javassist.ClassPool;
 import javassist.CtClass;
-import javassist.CtField;
-import javassist.CtNewConstructor;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;

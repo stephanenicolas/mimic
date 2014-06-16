@@ -28,7 +28,7 @@ import org.junit.Test;
  * @author SNI
  *
  */
-public class MimicTest {
+public class MimicCreatorTest {
 
 	private MimicCreator mimicCreator;
 	private CtClass src;
