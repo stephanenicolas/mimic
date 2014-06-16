@@ -23,7 +23,8 @@
 		<actionbarsherlock.version>4.2.0</actionbarsherlock.version>
 		<jsr305.version>1.3.9</jsr305.version>
 		<findbugs-annotations.version>1.0.0</findbugs-annotations.version>
-
+		<guice.version>3.0</guice.version>
+		
 		<!--TESTING -->
 		<easymock.version>3.0</easymock.version>
 		<junit.version>4.11</junit.version>
@@ -56,6 +57,12 @@
 			<artifactId>annotations</artifactId>
 			<version>${findbugs-annotations.version}</version>
 			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+			<version>${guice.version}</version>
+			<classifier>no_aop</classifier>
 		</dependency>
 
 		<!-- TEST DEPENDENCIES -->

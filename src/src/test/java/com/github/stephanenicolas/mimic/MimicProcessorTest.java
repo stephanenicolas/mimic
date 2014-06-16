@@ -14,6 +14,9 @@ import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+
 public class MimicProcessorTest {
 
 	private MimicProcessor mimicProcessor;
@@ -54,8 +57,8 @@ public class MimicProcessorTest {
 	public void testTransform() throws Exception {
 		// GIVEN
 		addMimicAnnotation(dst, TestSourceClass.class.getName());
-		MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
-		mimicProcessor.setMimic(mimicMock);
+		final MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
+		Guice.createInjector( new MimicCreatorTestModule(mimicMock)).injectMembers(mimicProcessor);
 		mimicMock.mimicClass(EasyMock.eq(ClassPool.getDefault().get(TestSourceClass.class.getName())), EasyMock.eq(dst));
 		EasyMock.replay(mimicMock);
 		
@@ -77,4 +80,18 @@ public class MimicProcessorTest {
 		cf.addAttribute(attr);
 		cf.setVersionToJava5();
 	}
+	
+	private final class MimicCreatorTestModule extends AbstractModule {
+		private final MimicCreator mimicMock;
+
+		private MimicCreatorTestModule(MimicCreator mimicMock) {
+			this.mimicMock = mimicMock;
+		}
+
+		@Override
+		protected void configure() {
+			bind(MimicCreator.class).toInstance(mimicMock);
+		}
+	}
+
 }

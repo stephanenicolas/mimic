@@ -7,16 +7,14 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
 
+import javax.inject.Inject;
+
 import com.github.drochetti.javassist.maven.ClassTransformer;
 
 public class MimicProcessor extends ClassTransformer {
 
-	private MimicCreator mimic = new MimicCreator();
-
-	//for tests
-	protected void setMimic(MimicCreator mimic) {
-		this.mimic = mimic;
-	}
+	@Inject
+	private MimicCreator mimic;
 	
 	@Override
 	protected boolean filter(CtClass candidateClass) throws Exception {
