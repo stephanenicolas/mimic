@@ -1,5 +1,11 @@
 package com.github.stephanenicolas.mimic;
 
-public class TestCounter {
-	public static int testCounter = 0;
+public final class TestCounter {
+    
+    private TestCounter() {
+    }
+    //CHECKSTYLE: OFF
+    public static int testCounter = 0;
+    //CHECKSTYLE: OFF
+
 }

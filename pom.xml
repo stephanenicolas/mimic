@@ -15,6 +15,7 @@
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 		<maven-javadoc-plugin.version>2.8</maven-javadoc-plugin.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
+                <maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version>
 
 		<!--LIBRARIES -->
 		<android-map.version>7_r1</android-map.version>
@@ -78,27 +79,6 @@
 		<defaultGoal>package</defaultGoal>
 		<plugins>
 			<plugin>
-				<groupId>com.github.drochetti</groupId>
-				<artifactId>javassist-maven-plugin</artifactId>
-				<version>1.0.2-SNAPSHOT</version>
-				<configuration>
-					<includeTestClasses>false</includeTestClasses>
-					<transformerClasses>
-						<transformerClass>
-							<className>com.github.stephanenicolas.PostProcessor</className>
-						</transformerClass>
-					</transformerClasses>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>javassist</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
@@ -137,10 +117,24 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-			</plugin>
+                                <plugin>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-checkstyle-plugin</artifactId>
+                                        <version>${maven-checkstyle-plugin.version}</version>
+                                        <configuration>
+                                                <configLocation>mimic_checks.xml</configLocation>
+                                                <enableRulesSummary>false</enableRulesSummary>
+                                        </configuration>
+                                        <executions>
+                                                <execution>
+                                                        <id>checkstyle-check</id>
+                                                        <phase>process-sources</phase>
+                                                        <goals>
+                                                                <goal>check</goal>
+                                                        </goals>
+                                                </execution>
+                                        </executions>
+                                </plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
