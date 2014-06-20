@@ -21,13 +21,6 @@ import javassist.bytecode.Descriptor;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Can be used to mimic a class via post processing. On the target class, add
- * this annotation.
- * 
- * @author SNI
- *
- */
 public class MimicCreatorTest {
 
     private MimicCreator mimicCreator;
