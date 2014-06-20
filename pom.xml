@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.github.stephanenicolas</groupId>
+	<groupId>com.github.stephanenicolas.mimic</groupId>
 	<artifactId>mimic</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>Mimic</name>
@@ -15,8 +15,8 @@
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 		<maven-javadoc-plugin.version>2.8</maven-javadoc-plugin.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
-                <maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version>
-                <findbugs-maven-plugin.version>2.5.3</findbugs-maven-plugin.version>
+		<maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version>
+		<findbugs-maven-plugin.version>2.5.3</findbugs-maven-plugin.version>
 
 		<!--LIBRARIES -->
 		<android-map.version>7_r1</android-map.version>
@@ -26,7 +26,7 @@
 		<jsr305.version>1.3.9</jsr305.version>
 		<findbugs-annotations.version>1.0.0</findbugs-annotations.version>
 		<guice.version>3.0</guice.version>
-		
+
 		<!--TESTING -->
 		<easymock.version>3.0</easymock.version>
 		<junit.version>4.11</junit.version>
@@ -118,38 +118,38 @@
 					</execution>
 				</executions>
 			</plugin>
-                                <plugin>
-                                        <groupId>org.apache.maven.plugins</groupId>
-                                        <artifactId>maven-checkstyle-plugin</artifactId>
-                                        <version>${maven-checkstyle-plugin.version}</version>
-                                        <configuration>
-                                                <configLocation>mimic_checks.xml</configLocation>
-                                                <enableRulesSummary>false</enableRulesSummary>
-                                        </configuration>
-                                        <executions>
-                                                <execution>
-                                                        <id>checkstyle-check</id>
-                                                        <phase>process-sources</phase>
-                                                        <goals>
-                                                                <goal>check</goal>
-                                                        </goals>
-                                                </execution>
-                                        </executions>
-                                </plugin>
-                                <plugin>
-                                        <groupId>org.codehaus.mojo</groupId>
-                                        <artifactId>findbugs-maven-plugin</artifactId>
-                                        <version>${findbugs-maven-plugin.version}</version>
-                                        <executions>
-                                                <execution>
-                                                        <id>findbugs-check</id>
-                                                        <phase>verify</phase>
-                                                        <goals>
-                                                                <goal>check</goal>
-                                                        </goals>
-                                                </execution>
-                                        </executions>
-                                </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${maven-checkstyle-plugin.version}</version>
+				<configuration>
+					<configLocation>mimic_checks.xml</configLocation>
+					<enableRulesSummary>false</enableRulesSummary>
+				</configuration>
+				<executions>
+					<execution>
+						<id>checkstyle-check</id>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>${findbugs-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>findbugs-check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 		</plugins>
 		<pluginManagement>
