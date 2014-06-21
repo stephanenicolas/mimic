@@ -6,6 +6,40 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<name>Mimic</name>
 	<description>Mimicing is, indeed, kind of way to bypass java single inheritance paradigm. It allows to copy all declared fields, constructors and methods in a given class into another class.</description>
+	<inceptionYear>2014</inceptionYear>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
+	<scm>
+		<connection>scm:git:ssh://git@github.com/stephanenicolas/mimic.git</connection>
+		<url>git:ssh://git@github.com/stephanenicolas/mimic.git</url>
+		<developerConnection>scm:git:ssh://git@github.com/stephanenicolas/mimic.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
+	<licenses>
+		<license>
+			<name>Apache 2</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<issueManagement>
+		<system>Github Issue Tracker</system>
+		<url>https://github.com/stephanenicolas/mimic/issues</url>
+	</issueManagement>
+
+	<developers>
+		<developer>
+			<id>SNI</id>
+			<name>Stéphane Nicolas</name>
+			<email>steff.nicolas@gmail.com</email>
+		</developer>
+	</developers>
 
 	<properties>
 		<java.version>1.6</java.version>
