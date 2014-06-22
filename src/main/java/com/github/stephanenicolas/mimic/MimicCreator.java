@@ -46,6 +46,31 @@ import javassist.expr.MethodCall;
  */
 public class MimicCreator {
 
+    private final class ReplaceSuperExprEditor extends ExprEditor {
+        private final String copiedMethodName;
+        private final CtMethod method;
+
+        private ReplaceSuperExprEditor(String copiedMethodName, CtMethod method) {
+            this.copiedMethodName = copiedMethodName;
+            this.method = method;
+        }
+
+        @Override
+        public void edit(MethodCall m) throws CannotCompileException {
+            try {
+                // call to super
+                if (m.getMethodName().equals(method.getName())) {
+                    String string = createInvocation(method, copiedMethodName);
+                    System.out.println("swinged " + string);
+                    m.replace(string);
+                }
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
+            super.edit(m);
+        }
+    }
+
     /** A key used to distinguish possibly conflicting copies of a src methods. */
     private String key;
 
@@ -92,7 +117,11 @@ public class MimicCreator {
         mimicMethods(src, dst);
     }
 
-    public void mimicMethods(CtClass src, CtClass dst) throws CannotCompileException {
+    public void mimicMethods(CtClass src, CtClass dst) throws CannotCompileException, NotFoundException {
+        mimicMethods(src, dst, MimicMode.REPLACE_SUPER);
+    }
+
+    public void mimicMethods(CtClass src, CtClass dst, MimicMode mimicMode) throws CannotCompileException, NotFoundException {
         for (final CtMethod method : src.getDeclaredMethods()) {
             System.out.println("Mimic method " + method.getName());
             boolean destHasSameMethod = false;
@@ -108,34 +137,14 @@ public class MimicCreator {
                             + method.getName();
                     dst.addMethod(CtNewMethod.copy(method, copiedMethodName,
                             dst, null));
-                    methodInDest.instrument(new ExprEditor() {
-                        @Override
-                        public void edit(MethodCall m) throws CannotCompileException {
-                            try {
-                                // call to super
-                                if (m.getMethodName().equals(method.getName())) {
-                                    StringBuffer buffer = new StringBuffer();
-                                    for (int j = 0; j < method.getParameterTypes().length; j++) {
-                                        buffer.append(" $");
-                                        buffer.append(j + 1);
-                                        buffer.append(",");
-                                    }
-                                    String params = buffer.toString();
-                                    if (params.length() > 0) {
-                                        params = params.substring(0,
-                                                params.length() - 1);
-                                    }
-                                    String string = copiedMethodName + "("
-                                            + params + ");\n";
-                                    System.out.println("swinged " + string);
-                                    m.replace(string);
-                                }
-                            } catch (NotFoundException e) {
-                                e.printStackTrace();
-                            }
-                            super.edit(m);
-                        }
-                    });
+                    if (mimicMode == MimicMode.REPLACE_SUPER) {
+                        methodInDest.instrument(new ReplaceSuperExprEditor(copiedMethodName, method));
+                    } else if (mimicMode == MimicMode.BEFORE_RETURN) {
+                        String returnString = method.getReturnType() == null ? "" : "return ";
+                        methodInDest.insertAfter(returnString + createInvocation(methodInDest, copiedMethodName));
+                    }  else if (mimicMode == MimicMode.AT_BEGINNING) {
+                        methodInDest.insertBefore(createInvocation(methodInDest, copiedMethodName));
+                    }
                 }
             }
             if (!destHasSameMethod) {
@@ -225,5 +234,23 @@ public class MimicCreator {
         }
         return hasField;
     }
+
+    private String createInvocation(CtMethod method, String copiedMethodName) throws NotFoundException {
+        StringBuffer buffer = new StringBuffer();
+        for (int j = 0; j < method.getParameterTypes().length; j++) {
+            buffer.append(" $");
+            buffer.append(j + 1);
+            buffer.append(",");
+        }
+        String params = buffer.toString();
+        if (params.length() > 0) {
+            params = params.substring(0,
+                    params.length() - 1);
+        }
+        String string = copiedMethodName + "("
+                + params + ");\n";
+        return string;
+    }
+
 
 }

@@ -109,22 +109,16 @@ public class MimicCreatorTest {
     public void testMimicMethods_with_same_methods() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
-        src.addMethod(CtNewMethod.make("public void foo() { foo = 2; }", src));
-        CtClass dstAncestor = ClassPool.getDefault().makeClass(
-                "DstAncestor" + TestCounter.testCounter);
-        dstAncestor.addMethod(CtNewMethod.make("public void foo() {}",
-                dstAncestor));
-        dst.setSuperclass(dstAncestor);
+        src.addMethod(CtNewMethod.make("public boolean foo() { return true; }", src));
         dst.addMethod(CtNewMethod
-                .make("public void foo() { super.foo();}", dst));
-        dstAncestor.toClass();
+                .make("public boolean foo() { return false;}", dst));
         
         // WHEN
         mimicCreator.mimicFields(src, dst);
-        mimicCreator.mimicMethods(src, dst);
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE_RETURN);
 
         // THEN
-        assertHasFooField(2);
+        assertHasFooMethod(dst.toClass());
     }
 
     @Test
