@@ -9,7 +9,7 @@ import javassist.NotFoundException;
 
 import javax.inject.Inject;
 
-import com.github.drochetti.javassist.maven.ClassTransformer;
+import de.icongmbh.oss.maven.plugin.javassist.ClassTransformer;
 
 /**
  * Post processes all classes annotated with {@link Mimic}.
