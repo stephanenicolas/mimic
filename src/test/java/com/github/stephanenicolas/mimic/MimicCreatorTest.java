@@ -3,6 +3,7 @@ package com.github.stephanenicolas.mimic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -105,9 +106,22 @@ public class MimicCreatorTest {
         mimicCreator.mimicConstructors(src, dst);
 
         // THEN
-        assertHasMethod(ClassPool.getDefault().toClass(dst), "_copy_bar_" + src.getName());
+        assertHasMethod(ClassPool.getDefault().toClass(dst), "_copy_bar_" + src.getName(), null);
     }
 
+    @Test
+    public void testMimicConstructors_with_params() throws Exception {
+        // GIVEN
+        mimicCreator = new MimicCreator("bar");
+        src.addConstructor(CtNewConstructor.make("public Src(int a) {}",
+                src));
+
+        // WHEN
+        mimicCreator.mimicConstructors(src, dst);
+
+        // THEN
+        assertHasConstructor(ClassPool.getDefault().toClass(dst), new CtClass[]{CtClass.intType});
+    }
 
     @Test
     public void testMimicFields() throws Exception {
@@ -167,7 +181,7 @@ public class MimicCreatorTest {
     }
 
     @Test
-    public void testMimicMethods_withKey() throws Exception {
+    public void testMimicMethods_with_key() throws Exception {
         // GIVEN
         mimicCreator = new MimicCreator("bar");
         src.addMethod(CtNewMethod.make("public boolean foo() { return true;}",
@@ -179,8 +193,22 @@ public class MimicCreatorTest {
         mimicCreator.mimicMethods(src, dst, MimicMode.REPLACE_SUPER, new MimicMethod[0]);
 
         // THEN
-        assertHasMethod(ClassPool.getDefault().toClass(dst), "_copy_bar_foo");
+        assertHasMethod(ClassPool.getDefault().toClass(dst), "_copy_bar_foo", null);
     }
+
+    @Test
+    public void testMimicMethods_with_params() throws Exception {
+        // GIVEN
+        src.addMethod(CtNewMethod.make("public boolean foo(int a) { return true; }", src));
+
+        // WHEN
+        mimicCreator.mimicFields(src, dst);
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE_RETURN, new MimicMethod[0]);
+
+        // THEN
+        assertHasMethod(dst.toClass(), "foo", new Class<?>[] {int.class});
+    }
+
 
     private void assertHasFooField(Integer value) throws Exception {
         CtField fooField = dst.getField("foo");
@@ -213,6 +241,28 @@ public class MimicCreatorTest {
         assertEquals(2, realFooField.get(dstInstance));
     }
 
+    private void assertHasConstructor(Class<?> dstClass, CtClass[] paramClasses) throws Exception {
+        CtConstructor fooField = dst.getConstructor(Descriptor.ofConstructor(paramClasses));
+        assertNotNull(fooField);
+        // we also need to check if code has been copied
+        Class<?>[] paramTypes = new Class<?>[paramClasses.length];
+        Object[] params = new Object[paramClasses.length];
+        int indexClass = 0;
+        for (CtClass ctClass : paramClasses) {
+            if (ctClass == CtClass.intType) {
+                paramTypes[indexClass] = int.class;
+                params[indexClass] = 0;
+            } else {
+                paramTypes[indexClass] = ctClass.toClass();
+                params[indexClass] = null;
+            }
+            indexClass++;
+        }
+        Constructor<?> dstInstance = dstClass.getConstructor(paramTypes);
+        assertNotNull(dstInstance.newInstance(params));
+    }
+
+
     private void assertHasFooMethod(Class<?> dstClass) throws Exception {
         CtMethod fooMethod = dst.getDeclaredMethod("foo");
         assertNotNull(fooMethod);
@@ -222,14 +272,26 @@ public class MimicCreatorTest {
         assertEquals(true, realFooMethod.invoke(dstInstance));
     }
 
-    private void assertHasMethod(Class<?> dstClass, String methodName) throws Exception {
+    private void assertHasMethod(Class<?> dstClass, String methodName, Class<?>[] paramClasses) throws Exception {
         CtMethod fooMethod = dst.getDeclaredMethod(methodName);
         assertNotNull(fooMethod);
         // we also need to check if code has been copied
         Object dstInstance = dstClass.newInstance();
-        Method realFooMethod = dstInstance.getClass().getMethod(methodName);
+        Method realFooMethod = dstInstance.getClass().getMethod(methodName, paramClasses);
         assertNotNull(realFooMethod);
-        realFooMethod.invoke(dstInstance);
+        Object[] params = new Object[paramClasses == null ? 0 : paramClasses.length];
+        if (paramClasses != null) {
+            int indexClass = 0;
+            for (Class<?> ctClass : paramClasses) {
+                if (ctClass == int.class) {
+                    params[indexClass] = 0;
+                } else {
+                    params[indexClass] = null;
+                }
+                indexClass++;
+            }
+        }
+        realFooMethod.invoke(dstInstance, params);
     }
 
     private void assertHasInterface(Class<?> interfaceClass, Class<?> dstClass) throws Exception {
