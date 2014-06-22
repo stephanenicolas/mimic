@@ -1,4 +1,6 @@
-package com.github.stephanenicolas.mimic;
+package com.github.stephanenicolas.mimic.annotations;
+
+import com.github.stephanenicolas.mimic.MimicMode;
 
 /**
  * Can be used to mimic a class via post processing. On the target class, add
@@ -23,4 +25,14 @@ public @interface Mimic {
 
     /** Whether or not to mimic methods. Defaults to true. */
     boolean isMimicingMethods() default true;
+    
+    /** Defines which methods are copied, and how. If not defined, they are all copied, using default mimic mode.*/
+    MimicMethod[] mimicMethods() default { };
+
+    /** Default mimic mode for all methods. */
+    MimicMode defaultMimicMode() default MimicMode.REPLACE_SUPER;
+
+    /** Defines which fields are copied, and how. If not defined, they are all copied.*/
+    MimicField[] mimicFields() default { };
+
 }

@@ -1,5 +1,7 @@
 package com.github.stephanenicolas.mimic;
 
+import java.util.HashMap;
+
 import javassist.CannotCompileException;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -11,17 +13,19 @@ import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 
+import com.github.stephanenicolas.mimic.annotations.MimicMethod;
+
 
 /**
  * Enables mimicing a class. Mimicing is, indeed, kind of way to bypass java
  * single inheritance paradigm. It allows to copy all declared fields,
  * constructors and methods from a given class into another class. For instance
  * if we have
- * 
+ *
  * <pre>
  * public class Src {
  *     private int a;
- * 
+ *
  *     public Src() {...}
  *     protected b() {...}
  *     protected c() {...}
@@ -90,8 +94,46 @@ public class MimicCreator {
         this.key = key;
     }
 
+    private String createInvocation(CtMethod method, String copiedMethodName) throws NotFoundException {
+        StringBuffer buffer = new StringBuffer();
+        for (int j = 0; j < method.getParameterTypes().length; j++) {
+            buffer.append(" $");
+            buffer.append(j + 1);
+            buffer.append(",");
+        }
+        String params = buffer.toString();
+        if (params.length() > 0) {
+            params = params.substring(0,
+                    params.length() - 1);
+        }
+        String string = copiedMethodName + "("
+                + params + ");\n";
+        return string;
+    }
+
     public String getKey() {
         return key;
+    }
+
+    public boolean hasField(CtClass clazz, CtField field) {
+        boolean hasField = false;
+        try {
+            clazz.getField(field.getName());
+            hasField = true;
+        } catch (Exception e) {
+            // nothing
+            hasField = false;
+        }
+        return hasField;
+    }
+
+    public boolean hasInterface(CtClass dst, CtClass interfazz) throws NotFoundException {
+        for (CtClass interfazzInClass : dst.getInterfaces()) {
+            if (interfazzInClass.getName().equals(interfazz.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -101,6 +143,9 @@ public class MimicCreator {
      *            the src class.
      * @param dst
      *            the dst class.
+     * @param defaultMimicMode
+     *            the default mimic mode for methods.
+     * @param mimicMethods
      * @throws NotFoundException
      *             should not be thrown.
      * @throws CannotCompileException
@@ -109,49 +154,12 @@ public class MimicCreator {
      *             if mimicing is not possible. For instance if class src and
      *             dst share a common field.
      */
-    public void mimicClass(CtClass src, CtClass dst) throws NotFoundException,
+    public void mimicClass(CtClass src, CtClass dst, MimicMode defaultMimicMode, MimicMethod[] mimicMethods) throws NotFoundException,
             CannotCompileException, MimicException {
         mimicInterfaces(src, dst);
         mimicFields(src, dst);
         mimicConstructors(src, dst);
-        mimicMethods(src, dst);
-    }
-
-    public void mimicMethods(CtClass src, CtClass dst) throws CannotCompileException, NotFoundException {
-        mimicMethods(src, dst, MimicMode.REPLACE_SUPER);
-    }
-
-    public void mimicMethods(CtClass src, CtClass dst, MimicMode mimicMode) throws CannotCompileException, NotFoundException {
-        for (final CtMethod method : src.getDeclaredMethods()) {
-            System.out.println("Mimic method " + method.getName());
-            boolean destHasSameMethod = false;
-            for (CtMethod methodInDest : dst.getDeclaredMethods()) {
-                String signature = method.getSignature() + method.getName();
-                String signatureInDest = methodInDest.getSignature()
-                        + methodInDest.getName();
-                if (signatureInDest.equals(signature)) {
-                    destHasSameMethod = true;
-                    System.out.println("Forwarding " + method.getName());
-                    String key = this.key == null ? "" : (this.key + "_");
-                    final String copiedMethodName = "_copy_" + key
-                            + method.getName();
-                    dst.addMethod(CtNewMethod.copy(method, copiedMethodName,
-                            dst, null));
-                    if (mimicMode == MimicMode.REPLACE_SUPER) {
-                        methodInDest.instrument(new ReplaceSuperExprEditor(copiedMethodName, method));
-                    } else if (mimicMode == MimicMode.BEFORE_RETURN) {
-                        String returnString = method.getReturnType() == null ? "" : "return ";
-                        methodInDest.insertAfter(returnString + createInvocation(methodInDest, copiedMethodName));
-                    }  else if (mimicMode == MimicMode.AT_BEGINNING) {
-                        methodInDest.insertBefore(createInvocation(methodInDest, copiedMethodName));
-                    }
-                }
-            }
-            if (!destHasSameMethod) {
-                System.out.println("Copying " + method.getName());
-                dst.addMethod(CtNewMethod.copy(method, dst, null));
-            }
-        }
+        mimicMethods(src, dst, defaultMimicMode, mimicMethods);
     }
 
     public void mimicConstructors(CtClass src, CtClass dst) throws CannotCompileException, NotFoundException {
@@ -214,43 +222,47 @@ public class MimicCreator {
         }
     }
 
-    public boolean hasInterface(CtClass dst, CtClass interfazz) throws NotFoundException {
-        for (CtClass interfazzInClass : dst.getInterfaces()) {
-            if (interfazzInClass.getName().equals(interfazz.getName())) {
-                return true;
+    public void mimicMethods(CtClass src, CtClass dst, MimicMode defaultMimicMode, MimicMethod[] mimicMethods) throws CannotCompileException, NotFoundException {
+        HashMap<String, MimicMode> mapNameToMimicMode = new HashMap<String, MimicMode>();
+        for (MimicMethod method : mimicMethods) {
+            mapNameToMimicMode.put(method.methodName(), method.mode());
+        }
+        for (final CtMethod method : src.getDeclaredMethods()) {
+            System.out.println("Mimic method " + method.getName());
+            boolean destHasSameMethod = false;
+            for (CtMethod methodInDest : dst.getDeclaredMethods()) {
+                String signature = method.getSignature() + method.getName();
+                String signatureInDest = methodInDest.getSignature()
+                        + methodInDest.getName();
+                if (signatureInDest.equals(signature)) {
+                    destHasSameMethod = true;
+                    System.out.println("Forwarding " + method.getName());
+                    String key = this.key == null ? "" : (this.key + "_");
+                    final String copiedMethodName = "_copy_" + key
+                            + method.getName();
+                    dst.addMethod(CtNewMethod.copy(method, copiedMethodName,
+                            dst, null));
+
+                    switch (defaultMimicMode) {
+                        case AT_BEGINNING :
+                            methodInDest.insertBefore(createInvocation(methodInDest, copiedMethodName));
+                            break;
+                        case BEFORE_RETURN :
+                            String returnString = method.getReturnType() == null ? "" : "return ";
+                            methodInDest.insertAfter(returnString + createInvocation(methodInDest, copiedMethodName));
+                            break;
+                        case REPLACE_SUPER :
+                            methodInDest.instrument(new ReplaceSuperExprEditor(copiedMethodName, method));
+                        default:
+                            break;
+                    }
+                }
+            }
+            if (!destHasSameMethod) {
+                System.out.println("Copying " + method.getName());
+                dst.addMethod(CtNewMethod.copy(method, dst, null));
             }
         }
-        return false;
     }
-
-    public boolean hasField(CtClass clazz, CtField field) {
-        boolean hasField = false;
-        try {
-            clazz.getField(field.getName());
-            hasField = true;
-        } catch (Exception e) {
-            // nothing
-            hasField = false;
-        }
-        return hasField;
-    }
-
-    private String createInvocation(CtMethod method, String copiedMethodName) throws NotFoundException {
-        StringBuffer buffer = new StringBuffer();
-        for (int j = 0; j < method.getParameterTypes().length; j++) {
-            buffer.append(" $");
-            buffer.append(j + 1);
-            buffer.append(",");
-        }
-        String params = buffer.toString();
-        if (params.length() > 0) {
-            params = params.substring(0,
-                    params.length() - 1);
-        }
-        String string = copiedMethodName + "("
-                + params + ");\n";
-        return string;
-    }
-
 
 }

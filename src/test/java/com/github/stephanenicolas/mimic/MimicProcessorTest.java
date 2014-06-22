@@ -15,14 +15,53 @@ import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.github.stephanenicolas.mimic.annotations.Mimic;
+import com.github.stephanenicolas.mimic.annotations.MimicMethod;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 
 public class MimicProcessorTest {
 
+    private final class MimicCreatorTestModule extends AbstractModule {
+        private final MimicCreator mimicMock;
+
+        private MimicCreatorTestModule(MimicCreator mimicMock) {
+            this.mimicMock = mimicMock;
+        }
+
+        @Override
+        protected void configure() {
+            bind(MimicCreator.class).toInstance(mimicMock);
+        }
+    }
     private MimicProcessor mimicProcessor;
     private CtClass src;
+
     private CtClass dst;
+
+    private void addMimicAnnotation(CtClass dst, String sourceClassName,
+            boolean isMimicingInterfaces, boolean isMimicingFields,
+            boolean isMimicingConstructors, boolean isMimicingMethods) {
+        ClassFile cf = dst.getClassFile();
+        ConstPool cp = cf.getConstPool();
+        AnnotationsAttribute attr = new AnnotationsAttribute(cp,
+                AnnotationsAttribute.visibleTag);
+
+        Annotation a = new Annotation(Mimic.class.getName(), cp);
+        a.addMemberValue("sourceClass", new ClassMemberValue(sourceClassName,
+                cp));
+        a.addMemberValue("isMimicingInterfaces", new BooleanMemberValue(
+                isMimicingInterfaces, cp));
+        a.addMemberValue("isMimicingFields", new BooleanMemberValue(
+                isMimicingFields, cp));
+        a.addMemberValue("isMimicingConstructors", new BooleanMemberValue(
+                isMimicingConstructors, cp));
+        a.addMemberValue("isMimicingMethods", new BooleanMemberValue(
+                isMimicingMethods, cp));
+        attr.setAnnotation(a);
+        cf.addAttribute(attr);
+        cf.setVersionToJava5();
+    }
 
     @Before
     public void setUp() {
@@ -55,6 +94,26 @@ public class MimicProcessorTest {
     }
 
     @Test
+    public void testTransform_with_mimic_constructors_only() throws Exception {
+        // GIVEN
+        addMimicAnnotation(dst, TestSourceClass.class.getName(), false, false,
+                true, false);
+        final MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
+        Guice.createInjector(new MimicCreatorTestModule(mimicMock))
+                .injectMembers(mimicProcessor);
+        mimicMock.mimicConstructors(
+                EasyMock.eq(ClassPool.getDefault().get(
+                        TestSourceClass.class.getName())), EasyMock.eq(dst));
+        EasyMock.replay(mimicMock);
+
+        // WHEN
+        mimicProcessor.applyTransformations(dst);
+
+        // THEN
+        EasyMock.verify(mimicMock);
+    }
+
+    @Test
     public void testTransform_with_mimic_defaults() throws Exception {
         // GIVEN
         addMimicAnnotation(dst, TestSourceClass.class.getName(), true, true,
@@ -63,6 +122,26 @@ public class MimicProcessorTest {
         Guice.createInjector(new MimicCreatorTestModule(mimicMock))
                 .injectMembers(mimicProcessor);
         mimicMock.mimicClass(
+                EasyMock.eq(ClassPool.getDefault().get(
+                        TestSourceClass.class.getName())), EasyMock.eq(dst), (MimicMode) EasyMock.anyObject(), (MimicMethod[]) EasyMock.anyObject());
+        EasyMock.replay(mimicMock);
+
+        // WHEN
+        mimicProcessor.applyTransformations(dst);
+
+        // THEN
+        EasyMock.verify(mimicMock);
+    }
+
+    @Test
+    public void testTransform_with_mimic_fields_only() throws Exception {
+        // GIVEN
+        addMimicAnnotation(dst, TestSourceClass.class.getName(), false, true,
+                false, false);
+        final MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
+        Guice.createInjector(new MimicCreatorTestModule(mimicMock))
+                .injectMembers(mimicProcessor);
+        mimicMock.mimicFields(
                 EasyMock.eq(ClassPool.getDefault().get(
                         TestSourceClass.class.getName())), EasyMock.eq(dst));
         EasyMock.replay(mimicMock);
@@ -95,46 +174,6 @@ public class MimicProcessorTest {
     }
 
     @Test
-    public void testTransform_with_mimic_fields_only() throws Exception {
-        // GIVEN
-        addMimicAnnotation(dst, TestSourceClass.class.getName(), false, true,
-                false, false);
-        final MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
-        Guice.createInjector(new MimicCreatorTestModule(mimicMock))
-                .injectMembers(mimicProcessor);
-        mimicMock.mimicFields(
-                EasyMock.eq(ClassPool.getDefault().get(
-                        TestSourceClass.class.getName())), EasyMock.eq(dst));
-        EasyMock.replay(mimicMock);
-
-        // WHEN
-        mimicProcessor.applyTransformations(dst);
-
-        // THEN
-        EasyMock.verify(mimicMock);
-    }
-
-    @Test
-    public void testTransform_with_mimic_constructors_only() throws Exception {
-        // GIVEN
-        addMimicAnnotation(dst, TestSourceClass.class.getName(), false, false,
-                true, false);
-        final MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
-        Guice.createInjector(new MimicCreatorTestModule(mimicMock))
-                .injectMembers(mimicProcessor);
-        mimicMock.mimicConstructors(
-                EasyMock.eq(ClassPool.getDefault().get(
-                        TestSourceClass.class.getName())), EasyMock.eq(dst));
-        EasyMock.replay(mimicMock);
-
-        // WHEN
-        mimicProcessor.applyTransformations(dst);
-
-        // THEN
-        EasyMock.verify(mimicMock);
-    }
-
-    @Test
     public void testTransform_with_mimic_methods_only() throws Exception {
         // GIVEN
         addMimicAnnotation(dst, TestSourceClass.class.getName(), false, false,
@@ -144,7 +183,7 @@ public class MimicProcessorTest {
                 .injectMembers(mimicProcessor);
         mimicMock.mimicMethods(
                 EasyMock.eq(ClassPool.getDefault().get(
-                        TestSourceClass.class.getName())), EasyMock.eq(dst));
+                        TestSourceClass.class.getName())), EasyMock.eq(dst), (MimicMode) EasyMock.anyObject(), (MimicMethod[]) EasyMock.anyObject());
         EasyMock.replay(mimicMock);
 
         // WHEN
@@ -152,43 +191,6 @@ public class MimicProcessorTest {
 
         // THEN
         EasyMock.verify(mimicMock);
-    }
-
-    private void addMimicAnnotation(CtClass dst, String sourceClassName,
-            boolean isMimicingInterfaces, boolean isMimicingFields,
-            boolean isMimicingConstructors, boolean isMimicingMethods) {
-        ClassFile cf = dst.getClassFile();
-        ConstPool cp = cf.getConstPool();
-        AnnotationsAttribute attr = new AnnotationsAttribute(cp,
-                AnnotationsAttribute.visibleTag);
-
-        Annotation a = new Annotation(Mimic.class.getName(), cp);
-        a.addMemberValue("sourceClass", new ClassMemberValue(sourceClassName,
-                cp));
-        a.addMemberValue("isMimicingInterfaces", new BooleanMemberValue(
-                isMimicingInterfaces, cp));
-        a.addMemberValue("isMimicingFields", new BooleanMemberValue(
-                isMimicingFields, cp));
-        a.addMemberValue("isMimicingConstructors", new BooleanMemberValue(
-                isMimicingConstructors, cp));
-        a.addMemberValue("isMimicingMethods", new BooleanMemberValue(
-                isMimicingMethods, cp));
-        attr.setAnnotation(a);
-        cf.addAttribute(attr);
-        cf.setVersionToJava5();
-    }
-
-    private final class MimicCreatorTestModule extends AbstractModule {
-        private final MimicCreator mimicMock;
-
-        private MimicCreatorTestModule(MimicCreator mimicMock) {
-            this.mimicMock = mimicMock;
-        }
-
-        @Override
-        protected void configure() {
-            bind(MimicCreator.class).toInstance(mimicMock);
-        }
     }
 
 }
