@@ -74,6 +74,23 @@ public class MimicCreatorTest {
         // THEN
         assertHasFooFieldAndConstructor(ClassPool.getDefault().toClass(dst));
     }
+    
+    @Test
+    public void testMimicConstructors_with_same_constructors() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addConstructor(CtNewConstructor.make("public Src() { foo = 2; }",
+                src));
+        dst.addConstructor(CtNewConstructor.make("public Dst() {}",
+                dst));
+
+        // WHEN
+        mimicCreator.mimicFields(src, dst);
+        mimicCreator.mimicConstructors(src, dst);
+
+        // THEN
+        assertHasFooFieldAndConstructor(ClassPool.getDefault().toClass(dst));
+    }
 
     @Test
     public void testMimicMethods() throws Exception {
