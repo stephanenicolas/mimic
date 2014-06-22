@@ -37,7 +37,7 @@ public class MimicProcessorTest {
         addMimicAnnotation(dst, src.getName(), true, true, true, true);
 
         // WHEN
-        boolean filter = mimicProcessor.filter(dst);
+        boolean filter = mimicProcessor.shouldTransform(dst);
 
         // THEN
         assertTrue(filter);
@@ -48,7 +48,7 @@ public class MimicProcessorTest {
         // GIVEN
 
         // WHEN
-        boolean filter = mimicProcessor.filter(dst);
+        boolean filter = mimicProcessor.shouldTransform(dst);
 
         // THEN
         assertFalse(filter);
