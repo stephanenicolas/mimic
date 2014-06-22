@@ -11,6 +11,7 @@ import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 
+
 /**
  * Enables mimicing a class. Mimicing is, indeed, kind of way to bypass java
  * single inheritance paradigm. It allows to copy all declared fields,
