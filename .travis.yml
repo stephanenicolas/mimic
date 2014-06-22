@@ -3,7 +3,6 @@ jdk: oraclejdk7
     
 before_install: 
  - git clone https://github.com/icon-Systemhaus-GmbH/javassist-maven-plugin.git
- - git reset --hard a455ef914d1f0c32323a1887fed76f29cfeca6e6
  - cd javassist-maven-plugin
  - mvn clean install
  - cd ..
