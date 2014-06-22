@@ -50,31 +50,6 @@ import com.github.stephanenicolas.mimic.annotations.MimicMethod;
  */
 public class MimicCreator {
 
-    private final class ReplaceSuperExprEditor extends ExprEditor {
-        private final String copiedMethodName;
-        private final CtMethod method;
-
-        private ReplaceSuperExprEditor(String copiedMethodName, CtMethod method) {
-            this.copiedMethodName = copiedMethodName;
-            this.method = method;
-        }
-
-        @Override
-        public void edit(MethodCall m) throws CannotCompileException {
-            try {
-                // call to super
-                if (m.getMethodName().equals(method.getName())) {
-                    String string = createInvocation(method, copiedMethodName);
-                    System.out.println("swinged " + string);
-                    m.replace(string);
-                }
-            } catch (NotFoundException e) {
-                e.printStackTrace();
-            }
-            super.edit(m);
-        }
-    }
-
     /** A key used to distinguish possibly conflicting copies of a src methods. */
     private String key;
 
@@ -92,6 +67,15 @@ public class MimicCreator {
      */
     public MimicCreator(String key) {
         this.key = key;
+    }
+
+    private HashMap<String, MimicMode> buildMimicMethodMap(
+            MimicMethod[] mimicMethods) {
+        HashMap<String, MimicMode> mapNameToMimicMode = new HashMap<String, MimicMode>();
+        for (MimicMethod method : mimicMethods) {
+            mapNameToMimicMode.put(method.methodName(), method.mode());
+        }
+        return mapNameToMimicMode;
     }
 
     private String createInvocation(CtMethod method, String copiedMethodName) throws NotFoundException {
@@ -221,12 +205,9 @@ public class MimicCreator {
             }
         }
     }
-
     public void mimicMethods(CtClass src, CtClass dst, MimicMode defaultMimicMode, MimicMethod[] mimicMethods) throws CannotCompileException, NotFoundException {
-        HashMap<String, MimicMode> mapNameToMimicMode = new HashMap<String, MimicMode>();
-        for (MimicMethod method : mimicMethods) {
-            mapNameToMimicMode.put(method.methodName(), method.mode());
-        }
+        HashMap<String, MimicMode> mapNameToMimicMode = buildMimicMethodMap(mimicMethods);
+
         for (final CtMethod method : src.getDeclaredMethods()) {
             System.out.println("Mimic method " + method.getName());
             boolean destHasSameMethod = false;
@@ -243,7 +224,12 @@ public class MimicCreator {
                     dst.addMethod(CtNewMethod.copy(method, copiedMethodName,
                             dst, null));
 
-                    switch (defaultMimicMode) {
+                    MimicMode mimicMode = defaultMimicMode;
+                    if (mapNameToMimicMode.containsKey(method.getName())) {
+                        mimicMode = mapNameToMimicMode.get(method.getName());
+                    }
+
+                    switch (mimicMode) {
                         case AT_BEGINNING :
                             methodInDest.insertBefore(createInvocation(methodInDest, copiedMethodName));
                             break;
@@ -262,6 +248,30 @@ public class MimicCreator {
                 System.out.println("Copying " + method.getName());
                 dst.addMethod(CtNewMethod.copy(method, dst, null));
             }
+        }
+    }
+    private final class ReplaceSuperExprEditor extends ExprEditor {
+        private final String copiedMethodName;
+        private final CtMethod method;
+
+        private ReplaceSuperExprEditor(String copiedMethodName, CtMethod method) {
+            this.copiedMethodName = copiedMethodName;
+            this.method = method;
+        }
+
+        @Override
+        public void edit(MethodCall m) throws CannotCompileException {
+            try {
+                // call to super
+                if (m.getMethodName().equals(method.getName())) {
+                    String string = createInvocation(method, copiedMethodName);
+                    System.out.println("swinged " + string);
+                    m.replace(string);
+                }
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+            }
+            super.edit(m);
         }
     }
 

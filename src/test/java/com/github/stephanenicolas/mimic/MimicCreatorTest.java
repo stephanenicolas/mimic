@@ -26,53 +26,6 @@ public class MimicCreatorTest {
     private CtClass src;
     private CtClass dst;
 
-    private void assertHasFooField(Integer value) throws Exception {
-        CtField fooField = dst.getField("foo");
-        assertNotNull(fooField);
-        CtClass fooFieldType = fooField.getType();
-        assertEquals(CtClass.intType, fooFieldType);
-        Object dstInstance = ClassPool.getDefault().toClass(dst).newInstance();
-        Field realFooField = dstInstance.getClass().getDeclaredField("foo");
-        assertNotNull(realFooField);
-        if (value != null) {
-            Method realFooMethod = dstInstance.getClass().getMethod("foo");
-            realFooMethod.invoke(dstInstance);
-            realFooField.setAccessible(true);
-            assertEquals(value, realFooField.get(dstInstance));
-        }
-    }
-
-    private void assertHasFooFieldAndConstructor(Class<?> dstClass) throws Exception {
-        CtField fooField = dst.getField("foo");
-        assertNotNull(fooField);
-        CtClass fooFieldType = fooField.getType();
-        assertEquals(CtClass.intType, fooFieldType);
-        CtConstructor constructor = dst.getConstructor(Descriptor
-                .ofConstructor(null));
-        assertNotNull(constructor);
-        // we also need to check if code has been copied
-        Object dstInstance = dstClass.newInstance();
-        Field realFooField = dstInstance.getClass().getDeclaredField("foo");
-        realFooField.setAccessible(true);
-        assertEquals(2, realFooField.get(dstInstance));
-    }
-
-    private void assertHasFooMethod(Class<?> dstClass) throws Exception {
-        CtMethod fooMethod = dst.getDeclaredMethod("foo");
-        assertNotNull(fooMethod);
-        // we also need to check if code has been copied
-        Object dstInstance = dstClass.newInstance();
-        Method realFooMethod = dstInstance.getClass().getMethod("foo");
-        assertEquals(true, realFooMethod.invoke(dstInstance));
-    }
-
-    private void assertHasInterface(Class<?> interfaceClass, Class<?> dstClass) throws Exception {
-        CtClass fooInterface = dst.getInterfaces()[0];
-        assertNotNull(fooInterface);
-        Class<?> realInterface = dstClass.getInterfaces()[0];
-        assertEquals(realInterface, interfaceClass);
-    }
-
     @Before
     public void setUp() {
         mimicCreator = new MimicCreator();
@@ -140,6 +93,23 @@ public class MimicCreatorTest {
     }
 
     @Test
+    public void testMimicConstructors_with_keys() throws Exception {
+        // GIVEN
+        mimicCreator = new MimicCreator("bar");
+        src.addConstructor(CtNewConstructor.make("public Src() {}",
+                src));
+        dst.addConstructor(CtNewConstructor.make("public Dst() {}",
+                dst));
+
+        // WHEN
+        mimicCreator.mimicConstructors(src, dst);
+
+        // THEN
+        assertHasMethod(ClassPool.getDefault().toClass(dst), "_copy_bar_" + src.getName());
+    }
+
+
+    @Test
     public void testMimicFields() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
@@ -196,4 +166,76 @@ public class MimicCreatorTest {
         assertHasFooMethod(dst.toClass());
     }
 
+    @Test
+    public void testMimicMethods_withKey() throws Exception {
+        // GIVEN
+        mimicCreator = new MimicCreator("bar");
+        src.addMethod(CtNewMethod.make("public boolean foo() { return true;}",
+                src));
+        dst.addMethod(CtNewMethod.make("public boolean foo() { return true;}",
+                dst));
+
+        // WHEN
+        mimicCreator.mimicMethods(src, dst, MimicMode.REPLACE_SUPER, new MimicMethod[0]);
+
+        // THEN
+        assertHasMethod(ClassPool.getDefault().toClass(dst), "_copy_bar_foo");
+    }
+
+    private void assertHasFooField(Integer value) throws Exception {
+        CtField fooField = dst.getField("foo");
+        assertNotNull(fooField);
+        CtClass fooFieldType = fooField.getType();
+        assertEquals(CtClass.intType, fooFieldType);
+        Object dstInstance = ClassPool.getDefault().toClass(dst).newInstance();
+        Field realFooField = dstInstance.getClass().getDeclaredField("foo");
+        assertNotNull(realFooField);
+        if (value != null) {
+            Method realFooMethod = dstInstance.getClass().getMethod("foo");
+            realFooMethod.invoke(dstInstance);
+            realFooField.setAccessible(true);
+            assertEquals(value, realFooField.get(dstInstance));
+        }
+    }
+
+    private void assertHasFooFieldAndConstructor(Class<?> dstClass) throws Exception {
+        CtField fooField = dst.getField("foo");
+        assertNotNull(fooField);
+        CtClass fooFieldType = fooField.getType();
+        assertEquals(CtClass.intType, fooFieldType);
+        CtConstructor constructor = dst.getConstructor(Descriptor
+                .ofConstructor(null));
+        assertNotNull(constructor);
+        // we also need to check if code has been copied
+        Object dstInstance = dstClass.newInstance();
+        Field realFooField = dstInstance.getClass().getDeclaredField("foo");
+        realFooField.setAccessible(true);
+        assertEquals(2, realFooField.get(dstInstance));
+    }
+
+    private void assertHasFooMethod(Class<?> dstClass) throws Exception {
+        CtMethod fooMethod = dst.getDeclaredMethod("foo");
+        assertNotNull(fooMethod);
+        // we also need to check if code has been copied
+        Object dstInstance = dstClass.newInstance();
+        Method realFooMethod = dstInstance.getClass().getMethod("foo");
+        assertEquals(true, realFooMethod.invoke(dstInstance));
+    }
+
+    private void assertHasMethod(Class<?> dstClass, String methodName) throws Exception {
+        CtMethod fooMethod = dst.getDeclaredMethod(methodName);
+        assertNotNull(fooMethod);
+        // we also need to check if code has been copied
+        Object dstInstance = dstClass.newInstance();
+        Method realFooMethod = dstInstance.getClass().getMethod(methodName);
+        assertNotNull(realFooMethod);
+        realFooMethod.invoke(dstInstance);
+    }
+
+    private void assertHasInterface(Class<?> interfaceClass, Class<?> dstClass) throws Exception {
+        CtClass fooInterface = dst.getInterfaces()[0];
+        assertNotNull(fooInterface);
+        Class<?> realInterface = dstClass.getInterfaces()[0];
+        assertEquals(realInterface, interfaceClass);
+    }
 }
