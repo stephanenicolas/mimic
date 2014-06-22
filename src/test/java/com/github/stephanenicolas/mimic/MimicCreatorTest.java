@@ -4,10 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -15,7 +13,6 @@ import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
-import javassist.NotFoundException;
 import javassist.bytecode.Descriptor;
 
 import org.junit.Before;
@@ -36,9 +33,7 @@ public class MimicCreatorTest {
     }
 
     @Test
-    public void testMimicInterfaces() throws CannotCompileException,
-            MimicException, NotFoundException, InstantiationException,
-            IllegalAccessException, SecurityException, NoSuchFieldException {
+    public void testMimicInterfaces() throws Exception {
         // GIVEN
         CtClass interfazz = ClassPool.getDefault().makeInterface(
                 "Able" + TestCounter.testCounter);
@@ -54,9 +49,7 @@ public class MimicCreatorTest {
     }
 
     @Test
-    public void testMimicFields() throws CannotCompileException,
-            MimicException, NotFoundException, InstantiationException,
-            IllegalAccessException, SecurityException, NoSuchFieldException {
+    public void testMimicFields() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
 
@@ -64,15 +57,11 @@ public class MimicCreatorTest {
         mimicCreator.mimicFields(src, dst);
 
         // THEN
-        assertHasFooField();
+        assertHasFooField(null);
     }
 
     @Test
-    public void testMimicConstructors() throws CannotCompileException,
-            MimicException, NotFoundException, InstantiationException,
-            IllegalAccessException, ClassNotFoundException,
-            IllegalArgumentException, InvocationTargetException,
-            SecurityException, NoSuchMethodException, NoSuchFieldException {
+    public void testMimicConstructors() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
         src.addConstructor(CtNewConstructor.make("public Src() { foo = 2; }",
@@ -87,11 +76,7 @@ public class MimicCreatorTest {
     }
 
     @Test
-    public void testMimicMethods() throws CannotCompileException,
-            MimicException, NotFoundException, InstantiationException,
-            IllegalAccessException, ClassNotFoundException,
-            IllegalArgumentException, InvocationTargetException,
-            SecurityException, NoSuchMethodException {
+    public void testMimicMethods() throws Exception {
         // GIVEN
         src.addMethod(CtNewMethod.make("public boolean foo() { return true;}",
                 src));
@@ -104,11 +89,29 @@ public class MimicCreatorTest {
     }
 
     @Test
-    public void testMimicClass() throws CannotCompileException, MimicException,
-            NotFoundException, InstantiationException, IllegalAccessException,
-            ClassNotFoundException, IllegalArgumentException,
-            InvocationTargetException, SecurityException,
-            NoSuchMethodException, NoSuchFieldException {
+    public void testMimicMethods_with_same_methods() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public void foo() { foo = 2; }", src));
+        CtClass dstAncestor = ClassPool.getDefault().makeClass(
+                "DstAncestor" + TestCounter.testCounter);
+        dstAncestor.addMethod(CtNewMethod.make("public void foo() {}",
+                dstAncestor));
+        dst.setSuperclass(dstAncestor);
+        dst.addMethod(CtNewMethod
+                .make("public void foo() { super.foo();}", dst));
+        dstAncestor.toClass();
+        
+        // WHEN
+        mimicCreator.mimicFields(src, dst);
+        mimicCreator.mimicMethods(src, dst);
+
+        // THEN
+        assertHasFooField(2);
+    }
+
+    @Test
+    public void testMimicClass() throws Exception {
         // GIVEN
         CtClass interfazz = ClassPool.getDefault().makeInterface(
                 "Able" + TestCounter.testCounter);
@@ -133,16 +136,14 @@ public class MimicCreatorTest {
         assertHasFooMethod(dstClass);
     }
 
-    private void assertHasInterface(Class<?> interfaceClass, Class<?> dstClass) throws NotFoundException, CannotCompileException {
+    private void assertHasInterface(Class<?> interfaceClass, Class<?> dstClass) throws Exception {
         CtClass fooInterface = dst.getInterfaces()[0];
         assertNotNull(fooInterface);
         Class<?> realInterface = dstClass.getInterfaces()[0];
         assertEquals(realInterface, interfaceClass);
     }
 
-    private void assertHasFooMethod(Class<?> dstClass) throws NotFoundException, InstantiationException,
-            IllegalAccessException, CannotCompileException,
-            NoSuchMethodException, InvocationTargetException {
+    private void assertHasFooMethod(Class<?> dstClass) throws Exception {
         CtMethod fooMethod = dst.getDeclaredMethod("foo");
         assertNotNull(fooMethod);
         // we also need to check if code has been copied
@@ -151,9 +152,7 @@ public class MimicCreatorTest {
         assertEquals(true, realFooMethod.invoke(dstInstance));
     }
 
-    private void assertHasFooFieldAndConstructor(Class<?> dstClass) throws NotFoundException, InstantiationException,
-            IllegalAccessException, CannotCompileException,
-            NoSuchFieldException {
+    private void assertHasFooFieldAndConstructor(Class<?> dstClass) throws Exception {
         CtField fooField = dst.getField("foo");
         assertNotNull(fooField);
         CtClass fooFieldType = fooField.getType();
@@ -168,9 +167,7 @@ public class MimicCreatorTest {
         assertEquals(2, realFooField.get(dstInstance));
     }
 
-    private void assertHasFooField() throws NotFoundException,
-            InstantiationException, IllegalAccessException,
-            CannotCompileException, NoSuchFieldException {
+    private void assertHasFooField(Integer value) throws Exception {
         CtField fooField = dst.getField("foo");
         assertNotNull(fooField);
         CtClass fooFieldType = fooField.getType();
@@ -178,6 +175,12 @@ public class MimicCreatorTest {
         Object dstInstance = ClassPool.getDefault().toClass(dst).newInstance();
         Field realFooField = dstInstance.getClass().getDeclaredField("foo");
         assertNotNull(realFooField);
+        if (value != null) {
+            Method realFooMethod = dstInstance.getClass().getMethod("foo");
+            realFooMethod.invoke(dstInstance);
+            realFooField.setAccessible(true);
+            assertEquals(value, realFooField.get(dstInstance));
+        }
     }
 
 }
