@@ -137,12 +137,42 @@ public class MimicCreatorTest {
         assertHasFooField(null);
     }
 
+    @Test(expected = MimicException.class)
+    public void testMimicFields_with_same_field() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        dst.addField(new CtField(CtClass.booleanType, "foo", dst));
+
+        // WHEN
+        mimicCreator.mimicFields(src, dst);
+
+        // THEN
+        //exception
+    }
+
     @Test
     public void testMimicInterfaces() throws Exception {
         // GIVEN
         CtClass interfazz = ClassPool.getDefault().makeInterface(
                 "Able" + TestCounter.testCounter);
         src.addInterface(interfazz);
+        // to load the interface class
+        Class<?> interfaceClass = ClassPool.getDefault().toClass(interfazz);
+
+        // WHEN
+        mimicCreator.mimicInterfaces(src, dst);
+
+        // THEN
+        assertHasInterface(interfaceClass, ClassPool.getDefault().toClass(dst));
+    }
+
+    @Test
+    public void testMimicInterfaces_with_same_interfaces() throws Exception {
+        // GIVEN
+        CtClass interfazz = ClassPool.getDefault().makeInterface(
+                "Able" + TestCounter.testCounter);
+        src.addInterface(interfazz);
+        dst.addInterface(interfazz);
         // to load the interface class
         Class<?> interfaceClass = ClassPool.getDefault().toClass(interfazz);
 
