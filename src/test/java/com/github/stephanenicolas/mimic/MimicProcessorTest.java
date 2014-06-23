@@ -72,7 +72,7 @@ public class MimicProcessorTest {
     }
 
     @Test
-    public void testFilter_does_filter_correctly_a_mimic_annotation() throws Exception {
+    public void testShouldTransform_does_filter_correctly_a_mimic_annotation() throws Exception {
         addMimicAnnotation(dst, src.getName(), true, true, true, true);
 
         // WHEN
@@ -83,7 +83,7 @@ public class MimicProcessorTest {
     }
 
     @Test
-    public void testFilter_does_filter_correctly_a_no_mimic_annotation() throws Exception {
+    public void testShouldTransform_does_filter_correctly_a_class_with_no_mimic_annotation() throws Exception {
         // GIVEN
 
         // WHEN
