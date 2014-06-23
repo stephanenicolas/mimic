@@ -110,11 +110,13 @@ public class MimicCreatorTest {
     }
 
     @Test
-    public void testMimicConstructors_with_params() throws Exception {
+    public void testMimicConstructors_with_same_constructor_with_params() throws Exception {
         // GIVEN
         mimicCreator = new MimicCreator("bar");
         src.addConstructor(CtNewConstructor.make("public Src(int a) {}",
                 src));
+        dst.addConstructor(CtNewConstructor.make("public Dst(int a) {}",
+                dst));
 
         // WHEN
         mimicCreator.mimicConstructors(src, dst);
@@ -197,9 +199,11 @@ public class MimicCreatorTest {
     }
 
     @Test
-    public void testMimicMethods_with_params() throws Exception {
+    public void testMimicMethods_with_same_method_with_params() throws Exception {
         // GIVEN
         src.addMethod(CtNewMethod.make("public boolean foo(int a) { return true; }", src));
+        dst.addMethod(CtNewMethod.make("public boolean foo() { return true;}",
+                dst));
 
         // WHEN
         mimicCreator.mimicFields(src, dst);
