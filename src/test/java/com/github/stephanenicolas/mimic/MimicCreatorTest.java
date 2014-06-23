@@ -202,7 +202,7 @@ public class MimicCreatorTest {
     public void testMimicMethods_with_same_method_with_params() throws Exception {
         // GIVEN
         src.addMethod(CtNewMethod.make("public boolean foo(int a) { return true; }", src));
-        dst.addMethod(CtNewMethod.make("public boolean foo() { return true;}",
+        dst.addMethod(CtNewMethod.make("public boolean foo(int a) { return true;}",
                 dst));
 
         // WHEN
