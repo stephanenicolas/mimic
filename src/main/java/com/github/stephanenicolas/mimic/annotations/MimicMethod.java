@@ -9,5 +9,5 @@ public @interface MimicMethod {
     String methodName();
 
     /** The mode of mimicing.*/
-    MimicMode mode() default MimicMode.REPLACE_SUPER;
+    MimicMode mode() default MimicMode.AFTER_SUPER;
 }

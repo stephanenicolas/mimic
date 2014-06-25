@@ -30,7 +30,7 @@ public @interface Mimic {
     MimicMethod[] mimicMethods() default { };
 
     /** Default mimic mode for all methods. */
-    MimicMode defaultMimicMode() default MimicMode.REPLACE_SUPER;
+    MimicMode defaultMimicMode() default MimicMode.AFTER_SUPER;
 
     /** Defines which fields are copied, and how. If not defined, they are all copied.*/
     MimicField[] mimicFields() default { };

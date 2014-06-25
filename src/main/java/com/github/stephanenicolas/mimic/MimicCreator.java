@@ -139,7 +139,7 @@ public class MimicCreator {
      *             dst share a common field.
      */
     public void mimicClass(CtClass src, CtClass dst, MimicMode defaultMimicMode, MimicMethod[] mimicMethods) throws NotFoundException,
-            CannotCompileException, MimicException {
+    CannotCompileException, MimicException {
         mimicInterfaces(src, dst);
         mimicFields(src, dst);
         mimicConstructors(src, dst);
@@ -187,7 +187,7 @@ public class MimicCreator {
     }
 
     public void mimicFields(CtClass src, CtClass dst) throws MimicException,
-            CannotCompileException {
+    CannotCompileException {
         for (CtField field : src.getDeclaredFields()) {
             if (hasField(dst, field)) {
                 throw new MimicException(String.format(
@@ -237,8 +237,11 @@ public class MimicCreator {
                             String returnString = method.getReturnType() == null ? "" : "return ";
                             methodInDest.insertAfter(returnString + createInvocation(methodInDest, copiedMethodName));
                             break;
+                        case BEFORE_SUPER :
+                        case AFTER_SUPER :
                         case REPLACE_SUPER :
-                            methodInDest.instrument(new ReplaceSuperExprEditor(copiedMethodName, method));
+                            methodInDest.instrument(new ReplaceSuperExprEditor(copiedMethodName, method, mimicMode));
+                            break;
                         default:
                             break;
                     }
@@ -253,10 +256,12 @@ public class MimicCreator {
     private final class ReplaceSuperExprEditor extends ExprEditor {
         private final String copiedMethodName;
         private final CtMethod method;
+        private final MimicMode mode;
 
-        private ReplaceSuperExprEditor(String copiedMethodName, CtMethod method) {
+        private ReplaceSuperExprEditor(String copiedMethodName, CtMethod method, MimicMode mode) {
             this.copiedMethodName = copiedMethodName;
             this.method = method;
+            this.mode = mode;
         }
 
         @Override
@@ -264,7 +269,20 @@ public class MimicCreator {
             try {
                 // call to super
                 if (m.getMethodName().equals(method.getName())) {
-                    String string = createInvocation(method, copiedMethodName);
+                    String string =  createInvocation(method, copiedMethodName);
+                    switch (mode) {
+                        case AFTER_SUPER:
+                            string = "$_ = $proceed($$);\n" + string;
+                            break;
+                        case BEFORE_SUPER :
+                            string = string + "$_ = $proceed($$);\n";
+                            break;
+                        case REPLACE_SUPER :
+                            string = "$_ = " + string;
+                            break;
+                        default:
+                            break;
+                    }
                     System.out.println("swinged " + string);
                     m.replace(string);
                 }

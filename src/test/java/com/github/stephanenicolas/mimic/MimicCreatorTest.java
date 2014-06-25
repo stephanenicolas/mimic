@@ -3,6 +3,7 @@ package com.github.stephanenicolas.mimic;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -51,7 +52,7 @@ public class MimicCreatorTest {
                 src));
 
         // WHEN
-        mimicCreator.mimicClass(src, dst, MimicMode.REPLACE_SUPER, new MimicMethod[0]);
+        mimicCreator.mimicClass(src, dst, MimicMode.AFTER_SUPER, new MimicMethod[0]);
 
         // THEN
         Class<?> dstClass = ClassPool.getDefault().toClass(dst);
@@ -190,7 +191,7 @@ public class MimicCreatorTest {
                 src));
 
         // WHEN
-        mimicCreator.mimicMethods(src, dst, MimicMode.REPLACE_SUPER, new MimicMethod[0]);
+        mimicCreator.mimicMethods(src, dst, MimicMode.AFTER_SUPER, new MimicMethod[0]);
 
         // THEN
         assertHasFooMethod(ClassPool.getDefault().toClass(dst));
@@ -213,6 +214,63 @@ public class MimicCreatorTest {
     }
 
     @Test
+    public void testMimicMethods_with_same_methods_with_cutom_mimic_method() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public boolean foo() { return true; }", src));
+        dst.addMethod(CtNewMethod
+                .make("public boolean foo() { return false;}", dst));
+
+        // WHEN
+        mimicCreator.mimicFields(src, dst);
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE_SUPER, new MimicMethod[] {new MimicMethod() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return MimicMethod.class;
+            }
+
+            @Override
+            public MimicMode mode() {
+                return MimicMode.BEFORE_RETURN;
+            }
+
+            @Override
+            public String methodName() {
+                return "foo";
+            }
+        }
+        });
+
+        // THEN
+        assertHasFooMethod(dst.toClass());
+    }
+
+    @Test
+    public void testMimicMethods_with_same_methods_with_override() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public boolean foo() { return true; }", src));
+
+        CtClass dstAncestor = ClassPool.getDefault().makeClass("DstAncestor" + TestCounter.testCounter);
+        dstAncestor.addMethod(CtNewMethod
+                .make("protected boolean foo() { return false;}", dstAncestor));
+        dstAncestor.addConstructor(CtNewConstructor
+                .make("public " + dstAncestor.getName() + "() {}", dstAncestor));
+        dst.setSuperclass(dstAncestor);
+        dst.addMethod(CtNewMethod
+                .make("public boolean foo() { return super.foo();}", dst));
+        dstAncestor.toClass();
+
+        // WHEN
+        mimicCreator.mimicFields(src, dst);
+        mimicCreator.mimicMethods(src, dst, MimicMode.REPLACE_SUPER, new MimicMethod[0]);
+
+        // THEN
+        assertHasFooMethod(dst.toClass());
+    }
+
+    @Test
     public void testMimicMethods_with_key() throws Exception {
         // GIVEN
         mimicCreator = new MimicCreator("bar");
@@ -222,7 +280,7 @@ public class MimicCreatorTest {
                 dst));
 
         // WHEN
-        mimicCreator.mimicMethods(src, dst, MimicMode.REPLACE_SUPER, new MimicMethod[0]);
+        mimicCreator.mimicMethods(src, dst, MimicMode.AFTER_SUPER, new MimicMethod[0]);
 
         // THEN
         assertHasMethod(ClassPool.getDefault().toClass(dst), "_copy_bar_foo", null);
