@@ -268,7 +268,7 @@ public class MimicCreator {
         public void edit(MethodCall m) throws CannotCompileException {
             try {
                 // call to super
-                if (m.getMethodName().equals(method.getName())) {
+                if (m.getMethodName().equals(method.getName()) && m.isSuper()) {
                     String string =  createInvocation(method, copiedMethodName);
                     switch (mode) {
                         case AFTER_SUPER:
