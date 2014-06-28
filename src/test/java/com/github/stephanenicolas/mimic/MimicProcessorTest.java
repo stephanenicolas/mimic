@@ -22,21 +22,8 @@ import com.google.inject.Guice;
 
 public class MimicProcessorTest {
 
-    private final class MimicCreatorTestModule extends AbstractModule {
-        private final MimicCreator mimicMock;
-
-        private MimicCreatorTestModule(MimicCreator mimicMock) {
-            this.mimicMock = mimicMock;
-        }
-
-        @Override
-        protected void configure() {
-            bind(MimicCreator.class).toInstance(mimicMock);
-        }
-    }
     private MimicProcessor mimicProcessor;
     private CtClass src;
-
     private CtClass dst;
 
     private void addMimicAnnotation(CtClass dst, String sourceClassName,
@@ -191,6 +178,19 @@ public class MimicProcessorTest {
 
         // THEN
         EasyMock.verify(mimicMock);
+    }
+
+    private final class MimicCreatorTestModule extends AbstractModule {
+        private final MimicCreator mimicMock;
+
+        private MimicCreatorTestModule(MimicCreator mimicMock) {
+            this.mimicMock = mimicMock;
+        }
+
+        @Override
+        protected void configure() {
+            bind(MimicCreator.class).toInstance(mimicMock);
+        }
     }
 
 }

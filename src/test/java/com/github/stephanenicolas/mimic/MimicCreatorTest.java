@@ -293,7 +293,7 @@ public class MimicCreatorTest {
                 .make("public " + dstAncestor.getName() + "() {}", dstAncestor));
         dst.setSuperclass(dstAncestor);
         dst.addMethod(CtNewMethod
-                .make("public boolean foo() { foo = 1; return super.foo(); foo = 3;}", dst));
+                .make("public boolean foo() { foo = 1; return super.foo();}", dst));
         dstAncestor.toClass();
 
         // WHEN
