@@ -245,6 +245,11 @@ public class MimicCreatorTest {
             public String methodName() {
                 return "foo";
             }
+
+            @Override
+            public String insertionMethod() {
+                return null;
+            }
         }
         });
 
@@ -339,6 +344,96 @@ public class MimicCreatorTest {
     }
 
     @Test
+    public void testMimicMethods_with_same_methods_with_after() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public void foo() { foo = 4; }", src));
+
+        dst.addField(new CtField(CtClass.intType, "foo", dst));
+        dst.addMethod(CtNewMethod
+                .make("public void bar() { foo = 3; }", dst));
+        dst.addMethod(CtNewMethod
+                .make("public void foo() { foo = 2; bar(); }", dst));
+
+        // WHEN
+        mimicCreator.mimicMethods(src, dst, MimicMode.AFTER, new MimicMethod[] {new MimicMethod() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return MimicMethod.class;
+            }
+
+            @Override
+            public MimicMode mode() {
+                return MimicMode.AFTER;
+            }
+
+            @Override
+            public String methodName() {
+                return "foo";
+            }
+
+            @Override
+            public String insertionMethod() {
+                return "bar";
+            }
+        }
+        });
+
+        // THEN
+        Class<?> dstClass = dst.toClass();
+        assertHasFooField(dst);
+        Object dstInstance = dstClass.newInstance();
+        invokeFoo(dstInstance);
+        assertHasFooField(dstInstance, 4);
+    }
+
+    @Test
+    public void testMimicMethods_with_same_methods_with_before() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public void foo() { foo = 4; }", src));
+
+        dst.addField(new CtField(CtClass.intType, "foo", dst));
+        dst.addMethod(CtNewMethod
+                .make("public void bar() { foo *= 2 ; }", dst));
+        dst.addMethod(CtNewMethod
+                .make("public void foo() { foo = 2; bar(); }", dst));
+
+        // WHEN
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE, new MimicMethod[] {new MimicMethod() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return MimicMethod.class;
+            }
+
+            @Override
+            public MimicMode mode() {
+                return MimicMode.BEFORE;
+            }
+
+            @Override
+            public String methodName() {
+                return "foo";
+            }
+
+            @Override
+            public String insertionMethod() {
+                return "bar";
+            }
+        }
+        });
+
+        // THEN
+        Class<?> dstClass = dst.toClass();
+        assertHasFooField(dst);
+        Object dstInstance = dstClass.newInstance();
+        invokeFoo(dstInstance);
+        assertHasFooField(dstInstance, 8);
+    }
+
+    @Test
     public void testMimicMethods_with_same_methods_with_at_beginning() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
@@ -411,7 +506,7 @@ public class MimicCreatorTest {
     }
 
     private void invokeFoo(Object dstInstance) throws NoSuchMethodException,
-            IllegalAccessException, InvocationTargetException {
+    IllegalAccessException, InvocationTargetException {
         Method realFooMethod;
         try {
             realFooMethod = dstInstance.getClass().getDeclaredMethod("foo");

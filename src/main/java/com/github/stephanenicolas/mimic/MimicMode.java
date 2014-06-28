@@ -5,5 +5,7 @@ public enum MimicMode {
     BEFORE_RETURN,
     BEFORE_SUPER,
     AFTER_SUPER,
-    REPLACE_SUPER;
+    REPLACE_SUPER,
+    BEFORE,
+    AFTER;
 }

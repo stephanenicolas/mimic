@@ -69,11 +69,20 @@ public class MimicCreator {
         this.key = key;
     }
 
-    private HashMap<String, MimicMode> buildMimicMethodMap(
+    private HashMap<String, MimicMode> buildMimicModeMethodMap(
             MimicMethod[] mimicMethods) {
         HashMap<String, MimicMode> mapNameToMimicMode = new HashMap<String, MimicMode>();
         for (MimicMethod method : mimicMethods) {
             mapNameToMimicMode.put(method.methodName(), method.mode());
+        }
+        return mapNameToMimicMode;
+    }
+
+    private HashMap<String, String> buildInsertionMethodMap(
+            MimicMethod[] mimicMethods) {
+        HashMap<String, String> mapNameToMimicMode = new HashMap<String, String>();
+        for (MimicMethod method : mimicMethods) {
+            mapNameToMimicMode.put(method.methodName(), method.insertionMethod());
         }
         return mapNameToMimicMode;
     }
@@ -206,7 +215,8 @@ public class MimicCreator {
         }
     }
     public void mimicMethods(CtClass src, CtClass dst, MimicMode defaultMimicMode, MimicMethod[] mimicMethods) throws CannotCompileException, NotFoundException {
-        HashMap<String, MimicMode> mapNameToMimicMode = buildMimicMethodMap(mimicMethods);
+        HashMap<String, MimicMode> mapNameToMimicMode = buildMimicModeMethodMap(mimicMethods);
+        HashMap<String, String> mapNameToInsertionMethod = buildInsertionMethodMap(mimicMethods);
 
         for (final CtMethod method : src.getDeclaredMethods()) {
             System.out.println("Mimic method " + method.getName());
@@ -224,11 +234,26 @@ public class MimicCreator {
                     dst.addMethod(CtNewMethod.copy(method, copiedMethodName,
                             dst, null));
 
+                    CtMethod insertionMethod = null;
                     MimicMode mimicMode = defaultMimicMode;
                     if (mapNameToMimicMode.containsKey(method.getName())) {
                         mimicMode = mapNameToMimicMode.get(method.getName());
+                        String insertionMethodName = mapNameToInsertionMethod.get(method.getName());
+                        if (insertionMethodName != null) {
+                            for (CtMethod methodInDest2 : dst.getDeclaredMethods()) {
+                                if (methodInDest2.getName().equals(insertionMethodName)) {
+                                    insertionMethod = methodInDest2;
+                                }
+                            }
+                            if (insertionMethod == null) {
+                                for (CtMethod methodInDest2 : dst.getMethods()) {
+                                    if (methodInDest2.getName().equals(insertionMethodName)) {
+                                        insertionMethod = methodInDest2;
+                                    }
+                                }
+                            }
+                        }
                     }
-
                     switch (mimicMode) {
                         case AT_BEGINNING :
                             methodInDest.insertBefore(createInvocation(methodInDest, copiedMethodName));
@@ -236,6 +261,10 @@ public class MimicCreator {
                         case BEFORE_RETURN :
                             String returnString = method.getReturnType() == null ? "" : "return ";
                             methodInDest.insertAfter(returnString + createInvocation(methodInDest, copiedMethodName));
+                            break;
+                        case BEFORE :
+                        case AFTER :
+                            methodInDest.instrument(new ReplaceSuperExprEditor(copiedMethodName, method, insertionMethod, mimicMode));
                             break;
                         case BEFORE_SUPER :
                         case AFTER_SUPER :
@@ -253,14 +282,21 @@ public class MimicCreator {
             }
         }
     }
+
     private final class ReplaceSuperExprEditor extends ExprEditor {
         private final String copiedMethodName;
-        private final CtMethod method;
+        private final CtMethod originalMethod;
+        private final CtMethod insertionMethod;
         private final MimicMode mode;
 
-        private ReplaceSuperExprEditor(String copiedMethodName, CtMethod method, MimicMode mode) {
+        private ReplaceSuperExprEditor(String copiedMethodName, CtMethod originalMethod, MimicMode mode) {
+            this(copiedMethodName, originalMethod, originalMethod, mode);
+        }
+
+        private ReplaceSuperExprEditor(String copiedMethodName, CtMethod originalMethod, CtMethod insertionMethod, MimicMode mode) {
             this.copiedMethodName = copiedMethodName;
-            this.method = method;
+            this.originalMethod = originalMethod;
+            this.insertionMethod = insertionMethod;
             this.mode = mode;
         }
 
@@ -268,14 +304,22 @@ public class MimicCreator {
         public void edit(MethodCall m) throws CannotCompileException {
             try {
                 // call to super
-                if (m.getMethodName().equals(method.getName()) && m.isSuper()) {
-                    String invokeCopy =  createInvocation(method, copiedMethodName);
+                if (m.getMethodName().equals(insertionMethod.getName())) {
+                    String invokeCopy =  createInvocation(originalMethod, copiedMethodName);
                     String replacement = "";
                     switch (mode) {
                         case AFTER_SUPER:
+                            if (!m.isSuper()) {
+                                return;
+                            }
+                        case AFTER:
                             replacement = "$_ = $proceed($$);\n" + invokeCopy;
                             break;
                         case BEFORE_SUPER :
+                            if (!m.isSuper()) {
+                                return;
+                            }
+                        case BEFORE :
                             replacement = invokeCopy + "$_ = $proceed($$);\n";
                             break;
                         case REPLACE_SUPER :
