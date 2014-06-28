@@ -3,6 +3,8 @@ package com.github.stephanenicolas.mimic;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Modifier;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
@@ -96,7 +98,12 @@ public class MimicProcessorTest {
                     public CtClass getDeclaringClass() throws NotFoundException {
                         return dst;
                     }
+                    @Override
+                    public int getModifiers() {
+                        return Modifier.PUBLIC;
+                    }
                 };
+
                 return new CtClass[] {inner};
             }
         };

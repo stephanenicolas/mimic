@@ -67,7 +67,7 @@ public class MimicProcessor extends ClassTransformer {
     protected boolean shouldTransform(CtClass candidateClass) throws Exception {
         // no support for non-static inner classes in javassist.
         if (candidateClass.getDeclaringClass() != null
-                && (candidateClass.getModifiers() & Modifier.STATIC) != 0) {
+                && (candidateClass.getModifiers() & Modifier.STATIC) == 0) {
             return false;
         }
         return candidateClass.hasAnnotation(Mimic.class);
