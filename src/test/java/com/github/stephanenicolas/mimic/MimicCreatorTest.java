@@ -434,6 +434,60 @@ public class MimicCreatorTest {
     }
 
     @Test
+    public void testMimicMethods_with_same_methods_in_super_class_with_before() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public void foo() { foo = 4; }", src));
+
+        CtClass dstAncestor = ClassPool.getDefault().makeClass("DstAncestor" + TestCounter.testCounter);
+        CtField field = new CtField(CtClass.intType, "foo", dstAncestor);
+        field.setModifiers(Modifier.PUBLIC);
+        dstAncestor.addField(field);
+        dstAncestor.addMethod(CtNewMethod
+                .make("public void bar() {}", dstAncestor));
+        dstAncestor.addConstructor(CtNewConstructor
+                .make("public " + dstAncestor.getName() + "() {}", dstAncestor));
+        dst.setSuperclass(dstAncestor);
+
+        dst.addField(new CtField(CtClass.intType, "foo", dst));
+        dst.addMethod(CtNewMethod
+                .make("public void foo() { foo = 2; bar(); }", dst));
+
+        // WHEN
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE, new MimicMethod[] {new MimicMethod() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return MimicMethod.class;
+            }
+
+            @Override
+            public MimicMode mode() {
+                return MimicMode.BEFORE;
+            }
+
+            @Override
+            public String methodName() {
+                return "foo";
+            }
+
+            @Override
+            public String insertionMethod() {
+                return "bar";
+            }
+        }
+        });
+        dstAncestor.toClass();
+
+        // THEN
+        Class<?> dstClass = dst.toClass();
+        assertHasFooField(dst);
+        Object dstInstance = dstClass.newInstance();
+        invokeFoo(dstInstance);
+        assertHasFooField(dstInstance, 4);
+    }
+
+    @Test
     public void testMimicMethods_with_same_methods_with_at_beginning() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
