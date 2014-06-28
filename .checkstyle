@@ -6,5 +6,6 @@
   </local-check-config>
   <fileset name="mimiconly" enabled="true" check-config-name="mimic" local="true">
     <file-match-pattern match-pattern="Mimic.*.java$" include-pattern="true"/>
+    <file-match-pattern match-pattern=".*Test" include-pattern="false"/>
   </fileset>
 </fileset-config>

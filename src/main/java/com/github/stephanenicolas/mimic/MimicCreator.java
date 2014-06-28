@@ -269,25 +269,26 @@ public class MimicCreator {
             try {
                 // call to super
                 if (m.getMethodName().equals(method.getName()) && m.isSuper()) {
-                    String string =  createInvocation(method, copiedMethodName);
+                    String invokeCopy =  createInvocation(method, copiedMethodName);
+                    String replacement = "";
                     switch (mode) {
                         case AFTER_SUPER:
-                            string = "$_ = $proceed($$);\n" + string;
+                            replacement = "$_ = $proceed($$);\n" + invokeCopy;
                             break;
                         case BEFORE_SUPER :
-                            string = string + "$_ = $proceed($$);\n";
+                            replacement = invokeCopy + "$_ = $proceed($$);\n";
                             break;
                         case REPLACE_SUPER :
-                            string = "$_ = " + string;
+                            replacement = "$_ = " + invokeCopy;
                             break;
                         default:
                             break;
                     }
-                    System.out.println("swinged " + string);
-                    m.replace(string);
+                    System.out.println("swinged " + replacement);
+                    m.replace(replacement);
                 }
             } catch (NotFoundException e) {
-                e.printStackTrace();
+                throw new CannotCompileException(e);
             }
             super.edit(m);
         }
