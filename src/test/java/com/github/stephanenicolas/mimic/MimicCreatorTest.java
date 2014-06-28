@@ -339,6 +339,28 @@ public class MimicCreatorTest {
     }
 
     @Test
+    public void testMimicMethods_with_same_methods_with_at_beginning() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public void foo() { foo = 3; }", src));
+
+        CtField field = new CtField(CtClass.intType, "foo", dst);
+        dst.addField(field);
+        dst.addMethod(CtNewMethod
+                .make("public void foo() { foo *= 2; }", dst));
+
+        // WHEN
+        mimicCreator.mimicMethods(src, dst, MimicMode.AT_BEGINNING, new MimicMethod[0]);
+
+        // THEN
+        Class<?> dstClass = dst.toClass();
+        assertHasFooField(dst);
+        Object dstInstance = dstClass.newInstance();
+        invokeFoo(dstInstance);
+        assertHasFooField(dstInstance, 6);
+    }
+
+    @Test
     public void testMimicMethods_with_key() throws Exception {
         // GIVEN
         mimicCreator = new MimicCreator("bar");
