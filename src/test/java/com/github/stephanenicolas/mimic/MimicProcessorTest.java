@@ -2,8 +2,10 @@ package com.github.stephanenicolas.mimic;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.NotFoundException;
 import javassist.bytecode.AnnotationsAttribute;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
@@ -59,7 +61,8 @@ public class MimicProcessorTest {
     }
 
     @Test
-    public void testShouldTransform_does_filter_correctly_a_mimic_annotation() throws Exception {
+    public void testShouldTransform_does_filter_correctly_a_mimic_annotation()
+            throws Exception {
         addMimicAnnotation(dst, src.getName(), true, true, true, true);
 
         // WHEN
@@ -70,8 +73,34 @@ public class MimicProcessorTest {
     }
 
     @Test
-    public void testShouldTransform_does_filter_correctly_a_class_with_no_mimic_annotation() throws Exception {
+    public void testShouldTransform_does_filter_correctly_a_class_with_no_mimic_annotation()
+            throws Exception {
         // GIVEN
+
+        // WHEN
+        boolean filter = mimicProcessor.shouldTransform(dst);
+
+        // THEN
+        assertFalse(filter);
+    }
+
+    @Test
+    public void testShouldTransform_does_filter_correctly_a_non_static_inner_class() throws Exception {
+        // GIVEN
+        dst = new CtClass("Dst" + TestCounter.testCounter) {
+
+            @Override
+            public CtClass[] getDeclaredClasses() throws NotFoundException {
+                CtClass inner = new CtClass("Inner" + TestCounter.testCounter) {
+                    @Override
+                    public CtClass getDeclaringClass() throws NotFoundException {
+                        return dst;
+                    }
+                };
+                return new CtClass[] {inner};
+            }
+        };
+
 
         // WHEN
         boolean filter = mimicProcessor.shouldTransform(dst);
@@ -87,7 +116,7 @@ public class MimicProcessorTest {
                 true, false);
         final MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
         Guice.createInjector(new MimicCreatorTestModule(mimicMock))
-                .injectMembers(mimicProcessor);
+        .injectMembers(mimicProcessor);
         mimicMock.mimicConstructors(
                 EasyMock.eq(ClassPool.getDefault().get(
                         TestSourceClass.class.getName())), EasyMock.eq(dst));
@@ -107,10 +136,12 @@ public class MimicProcessorTest {
                 true, true);
         final MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
         Guice.createInjector(new MimicCreatorTestModule(mimicMock))
-                .injectMembers(mimicProcessor);
+        .injectMembers(mimicProcessor);
         mimicMock.mimicClass(
                 EasyMock.eq(ClassPool.getDefault().get(
-                        TestSourceClass.class.getName())), EasyMock.eq(dst), (MimicMode) EasyMock.anyObject(), (MimicMethod[]) EasyMock.anyObject());
+                        TestSourceClass.class.getName())), EasyMock.eq(dst),
+                        (MimicMode) EasyMock.anyObject(),
+                        (MimicMethod[]) EasyMock.anyObject());
         EasyMock.replay(mimicMock);
 
         // WHEN
@@ -127,7 +158,7 @@ public class MimicProcessorTest {
                 false, false);
         final MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
         Guice.createInjector(new MimicCreatorTestModule(mimicMock))
-                .injectMembers(mimicProcessor);
+        .injectMembers(mimicProcessor);
         mimicMock.mimicFields(
                 EasyMock.eq(ClassPool.getDefault().get(
                         TestSourceClass.class.getName())), EasyMock.eq(dst));
@@ -147,7 +178,7 @@ public class MimicProcessorTest {
                 false, false);
         final MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
         Guice.createInjector(new MimicCreatorTestModule(mimicMock))
-                .injectMembers(mimicProcessor);
+        .injectMembers(mimicProcessor);
         mimicMock.mimicInterfaces(
                 EasyMock.eq(ClassPool.getDefault().get(
                         TestSourceClass.class.getName())), EasyMock.eq(dst));
@@ -167,10 +198,12 @@ public class MimicProcessorTest {
                 false, true);
         final MimicCreator mimicMock = EasyMock.createMock(MimicCreator.class);
         Guice.createInjector(new MimicCreatorTestModule(mimicMock))
-                .injectMembers(mimicProcessor);
+        .injectMembers(mimicProcessor);
         mimicMock.mimicMethods(
                 EasyMock.eq(ClassPool.getDefault().get(
-                        TestSourceClass.class.getName())), EasyMock.eq(dst), (MimicMode) EasyMock.anyObject(), (MimicMethod[]) EasyMock.anyObject());
+                        TestSourceClass.class.getName())), EasyMock.eq(dst),
+                        (MimicMode) EasyMock.anyObject(),
+                        (MimicMethod[]) EasyMock.anyObject());
         EasyMock.replay(mimicMock);
 
         // WHEN
