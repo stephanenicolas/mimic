@@ -103,7 +103,7 @@ public class MimicProcessorTest {
 
 
         // WHEN
-        boolean filter = mimicProcessor.shouldTransform(dst);
+        boolean filter = mimicProcessor.shouldTransform(dst.getDeclaredClasses()[0]);
 
         // THEN
         assertFalse(filter);
