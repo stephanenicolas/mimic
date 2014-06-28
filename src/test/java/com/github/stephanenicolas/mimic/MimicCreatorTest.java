@@ -41,17 +41,14 @@ public class MimicCreatorTest {
     @Test
     public void testMimicClass() throws Exception {
         // GIVEN
-        CtClass interfazz = ClassPool.getDefault().makeInterface(
-                "Able" + TestCounter.testCounter);
+        CtClass interfazz = ClassPool.getDefault().makeInterface("Able" + TestCounter.testCounter);
         src.addInterface(interfazz);
         // to load the interface class
         Class<?> interfaceClass = ClassPool.getDefault().toClass(interfazz);
 
         src.addField(new CtField(CtClass.intType, "foo", src));
-        src.addConstructor(CtNewConstructor.make("public Src() { foo = 2; }",
-                src));
-        src.addMethod(CtNewMethod.make("public boolean foo() { return true;}",
-                src));
+        src.addConstructor(CtNewConstructor.make("public Src() { foo = 2; }", src));
+        src.addMethod(CtNewMethod.make("public boolean foo() { return true;}", src));
 
         // WHEN
         mimicCreator.mimicClass(src, dst, MimicMode.AFTER_SUPER, new MimicMethod[0]);
@@ -68,8 +65,7 @@ public class MimicCreatorTest {
     public void testMimicConstructors() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
-        src.addConstructor(CtNewConstructor.make("public Src() { foo = 2; }",
-                src));
+        src.addConstructor(CtNewConstructor.make("public Src() { foo = 2; }", src));
 
         // WHEN
         mimicCreator.mimicFields(src, dst);
@@ -83,10 +79,8 @@ public class MimicCreatorTest {
     public void testMimicConstructors_with_same_constructors() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
-        src.addConstructor(CtNewConstructor.make("public Src() { foo = 2; }",
-                src));
-        dst.addConstructor(CtNewConstructor.make("public Dst() {}",
-                dst));
+        src.addConstructor(CtNewConstructor.make("public Src() { foo = 2; }", src));
+        dst.addConstructor(CtNewConstructor.make("public Dst() {}", dst));
 
         // WHEN
         mimicCreator.mimicFields(src, dst);
@@ -100,10 +94,8 @@ public class MimicCreatorTest {
     public void testMimicConstructors_with_keys() throws Exception {
         // GIVEN
         mimicCreator = new MimicCreator("bar");
-        src.addConstructor(CtNewConstructor.make("public Src() {}",
-                src));
-        dst.addConstructor(CtNewConstructor.make("public Dst() {}",
-                dst));
+        src.addConstructor(CtNewConstructor.make("public Src() {}", src));
+        dst.addConstructor(CtNewConstructor.make("public Dst() {}", dst));
 
         // WHEN
         mimicCreator.mimicConstructors(src, dst);
@@ -116,16 +108,14 @@ public class MimicCreatorTest {
     public void testMimicConstructors_with_same_constructor_with_params() throws Exception {
         // GIVEN
         mimicCreator = new MimicCreator("bar");
-        src.addConstructor(CtNewConstructor.make("public Src(int a) {}",
-                src));
-        dst.addConstructor(CtNewConstructor.make("public Dst(int a) {}",
-                dst));
+        src.addConstructor(CtNewConstructor.make("public Src(int a) {}", src));
+        dst.addConstructor(CtNewConstructor.make("public Dst(int a) {}", dst));
 
         // WHEN
         mimicCreator.mimicConstructors(src, dst);
 
         // THEN
-        assertHasConstructor(dst, dst.toClass(), new CtClass[]{CtClass.intType});
+        assertHasConstructor(dst, dst.toClass(), new CtClass[] { CtClass.intType });
     }
 
     @Test
@@ -152,14 +142,13 @@ public class MimicCreatorTest {
         mimicCreator.mimicFields(src, dst);
 
         // THEN
-        //exception
+        // exception
     }
 
     @Test
     public void testMimicInterfaces() throws Exception {
         // GIVEN
-        CtClass interfazz = ClassPool.getDefault().makeInterface(
-                "Able" + TestCounter.testCounter);
+        CtClass interfazz = ClassPool.getDefault().makeInterface("Able" + TestCounter.testCounter);
         src.addInterface(interfazz);
         // to load the interface class
         Class<?> interfaceClass = ClassPool.getDefault().toClass(interfazz);
@@ -174,8 +163,7 @@ public class MimicCreatorTest {
     @Test
     public void testMimicInterfaces_with_same_interfaces() throws Exception {
         // GIVEN
-        CtClass interfazz = ClassPool.getDefault().makeInterface(
-                "Able" + TestCounter.testCounter);
+        CtClass interfazz = ClassPool.getDefault().makeInterface("Able" + TestCounter.testCounter);
         src.addInterface(interfazz);
         dst.addInterface(interfazz);
         // to load the interface class
@@ -191,8 +179,7 @@ public class MimicCreatorTest {
     @Test
     public void testMimicMethods() throws Exception {
         // GIVEN
-        src.addMethod(CtNewMethod.make("public boolean foo() { return true;}",
-                src));
+        src.addMethod(CtNewMethod.make("public boolean foo() { return true;}", src));
 
         // WHEN
         mimicCreator.mimicMethods(src, dst, MimicMode.AFTER_SUPER, new MimicMethod[0]);
@@ -207,8 +194,7 @@ public class MimicCreatorTest {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
         src.addMethod(CtNewMethod.make("public boolean foo() { return true; }", src));
-        dst.addMethod(CtNewMethod
-                .make("public boolean foo() { return false;}", dst));
+        dst.addMethod(CtNewMethod.make("public boolean foo() { return false;}", dst));
 
         // WHEN
         mimicCreator.mimicFields(src, dst);
@@ -224,38 +210,16 @@ public class MimicCreatorTest {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
         src.addMethod(CtNewMethod.make("public boolean foo() { return true; }", src));
-        dst.addMethod(CtNewMethod
-                .make("public boolean foo() { return false;}", dst));
+        dst.addMethod(CtNewMethod.make("public boolean foo() { return false;}", dst));
 
         // WHEN
         mimicCreator.mimicFields(src, dst);
-        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE_SUPER, new MimicMethod[] {new MimicMethod() {
-
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return MimicMethod.class;
-            }
-
-            @Override
-            public MimicMode mode() {
-                return MimicMode.BEFORE_RETURN;
-            }
-
-            @Override
-            public String methodName() {
-                return "foo";
-            }
-
-            @Override
-            public String insertionMethod() {
-                return null;
-            }
-        }
-        });
+        MimicMethod mimicMethod = createMimicMethod(MimicMode.BEFORE_RETURN, "foo", null);
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE_SUPER, new MimicMethod[] { mimicMethod });
 
         // THEN
         Class<?> dstClass = dst.toClass();
-        assertHasFooMethod(dst,dstClass);
+        assertHasFooMethod(dst, dstClass);
     }
 
     @Test
@@ -265,13 +229,10 @@ public class MimicCreatorTest {
         src.addMethod(CtNewMethod.make("public boolean foo() { return true; }", src));
 
         CtClass dstAncestor = ClassPool.getDefault().makeClass("DstAncestor" + TestCounter.testCounter);
-        dstAncestor.addMethod(CtNewMethod
-                .make("protected boolean foo() { return false;}", dstAncestor));
-        dstAncestor.addConstructor(CtNewConstructor
-                .make("public " + dstAncestor.getName() + "() {}", dstAncestor));
+        dstAncestor.addMethod(CtNewMethod.make("protected boolean foo() { return false;}", dstAncestor));
+        dstAncestor.addConstructor(CtNewConstructor.make("public " + dstAncestor.getName() + "() {}", dstAncestor));
         dst.setSuperclass(dstAncestor);
-        dst.addMethod(CtNewMethod
-                .make("public boolean foo() { return super.foo();}", dst));
+        dst.addMethod(CtNewMethod.make("public boolean foo() { return super.foo();}", dst));
         dstAncestor.toClass();
 
         // WHEN
@@ -279,7 +240,28 @@ public class MimicCreatorTest {
         mimicCreator.mimicMethods(src, dst, MimicMode.REPLACE_SUPER, new MimicMethod[0]);
 
         // THEN
-        assertHasFooMethod(dst,dst.toClass());
+        assertHasFooMethod(dst, dst.toClass());
+    }
+
+    @Test
+    public void testMimicMethods_with_same_methods_with_replace_override_but_not_calling_super() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public boolean foo() { return false; }", src));
+
+        CtClass dstAncestor = ClassPool.getDefault().makeClass("DstAncestor" + TestCounter.testCounter);
+        dstAncestor.addMethod(CtNewMethod.make("protected boolean foo(int a) { return true;}", dstAncestor));
+        dstAncestor.addConstructor(CtNewConstructor.make("public " + dstAncestor.getName() + "() {}", dstAncestor));
+        dst.setSuperclass(dstAncestor);
+        dst.addMethod(CtNewMethod.make("public boolean foo() { return foo(1);}", dst));
+        dstAncestor.toClass();
+
+        // WHEN
+        mimicCreator.mimicFields(src, dst);
+        mimicCreator.mimicMethods(src, dst, MimicMode.REPLACE_SUPER, new MimicMethod[0]);
+
+        // THEN
+        assertHasFooMethod(dst, dst.toClass());
     }
 
     @Test
@@ -292,13 +274,10 @@ public class MimicCreatorTest {
         CtField field = new CtField(CtClass.intType, "foo", dstAncestor);
         field.setModifiers(Modifier.PUBLIC);
         dstAncestor.addField(field);
-        dstAncestor.addMethod(CtNewMethod
-                .make("public boolean foo() { foo *= 2; return true; }", dstAncestor));
-        dstAncestor.addConstructor(CtNewConstructor
-                .make("public " + dstAncestor.getName() + "() {}", dstAncestor));
+        dstAncestor.addMethod(CtNewMethod.make("public boolean foo() { foo *= 2; return true; }", dstAncestor));
+        dstAncestor.addConstructor(CtNewConstructor.make("public " + dstAncestor.getName() + "() {}", dstAncestor));
         dst.setSuperclass(dstAncestor);
-        dst.addMethod(CtNewMethod
-                .make("public boolean foo() { foo = 1; return super.foo();}", dst));
+        dst.addMethod(CtNewMethod.make("public boolean foo() { foo = 1; return super.foo();}", dst));
         dstAncestor.toClass();
 
         // WHEN
@@ -310,7 +289,35 @@ public class MimicCreatorTest {
         Object dstInstance = dstClass.newInstance();
         invokeFoo(dstInstance);
         assertHasFooField(dstInstance, 4);
-        assertHasFooMethod(dst,dstClass);
+        assertHasFooMethod(dst, dstClass);
+    }
+
+    @Test
+    public void testMimicMethods_with_same_methods_with_before_super_but_not_calling_super() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public boolean foo() { foo = 2; return false ; }", src));
+
+        CtClass dstAncestor = ClassPool.getDefault().makeClass("DstAncestor" + TestCounter.testCounter);
+        CtField field = new CtField(CtClass.intType, "foo", dstAncestor);
+        field.setModifiers(Modifier.PUBLIC);
+        dstAncestor.addField(field);
+        dstAncestor.addMethod(CtNewMethod.make("public boolean foo(int a) { foo *= 2; return true; }", dstAncestor));
+        dstAncestor.addConstructor(CtNewConstructor.make("public " + dstAncestor.getName() + "() {}", dstAncestor));
+        dst.setSuperclass(dstAncestor);
+        dst.addMethod(CtNewMethod.make("public boolean foo() { foo = 1; return foo(1);}", dst));
+        dstAncestor.toClass();
+
+        // WHEN
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE_SUPER, new MimicMethod[0]);
+
+        // THEN
+        Class<?> dstClass = dst.toClass();
+        assertHasFooField(dst);
+        Object dstInstance = dstClass.newInstance();
+        invokeFoo(dstInstance);
+        assertHasFooField(dstInstance, 2);
+        assertHasFooMethod(dst, dstClass);
     }
 
     @Test
@@ -323,13 +330,10 @@ public class MimicCreatorTest {
         CtField field = new CtField(CtClass.intType, "foo", dstAncestor);
         field.setModifiers(Modifier.PUBLIC);
         dstAncestor.addField(field);
-        dstAncestor.addMethod(CtNewMethod
-                .make("protected void foo() { foo *=2; }", dstAncestor));
-        dstAncestor.addConstructor(CtNewConstructor
-                .make("public " + dstAncestor.getName() + "() {}", dstAncestor));
+        dstAncestor.addMethod(CtNewMethod.make("protected void foo() { foo *=2; }", dstAncestor));
+        dstAncestor.addConstructor(CtNewConstructor.make("public " + dstAncestor.getName() + "() {}", dstAncestor));
         dst.setSuperclass(dstAncestor);
-        dst.addMethod(CtNewMethod
-                .make("public void foo() { foo = 2; super.foo(); }", dst));
+        dst.addMethod(CtNewMethod.make("public void foo() { foo = 2; super.foo(); }", dst));
         dstAncestor.toClass();
 
         // WHEN
@@ -344,41 +348,45 @@ public class MimicCreatorTest {
     }
 
     @Test
+    public void testMimicMethods_with_same_methods_with_after_super_but_not_calling_super() throws Exception {
+        // GIVEN
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public void foo() { foo = 3; }", src));
+
+        CtClass dstAncestor = ClassPool.getDefault().makeClass("DstAncestor" + TestCounter.testCounter);
+        CtField field = new CtField(CtClass.intType, "foo", dstAncestor);
+        field.setModifiers(Modifier.PUBLIC);
+        dstAncestor.addField(field);
+        dstAncestor.addMethod(CtNewMethod.make("protected void foo(int a) { foo *=2; }", dstAncestor));
+        dstAncestor.addConstructor(CtNewConstructor.make("public " + dstAncestor.getName() + "() {}", dstAncestor));
+        dst.setSuperclass(dstAncestor);
+        dst.addMethod(CtNewMethod.make("public void foo() { foo = 2; foo(1); }", dst));
+        dstAncestor.toClass();
+
+        // WHEN
+        mimicCreator.mimicMethods(src, dst, MimicMode.AFTER_SUPER, new MimicMethod[0]);
+
+        // THEN
+        Class<?> dstClass = dst.toClass();
+        assertHasFooField(dst);
+        Object dstInstance = dstClass.newInstance();
+        invokeFoo(dstInstance);
+        assertHasFooField(dstInstance, 4);
+    }
+
+    @Test
     public void testMimicMethods_with_same_methods_with_after() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
         src.addMethod(CtNewMethod.make("public void foo() { foo = 4; }", src));
 
         dst.addField(new CtField(CtClass.intType, "foo", dst));
-        dst.addMethod(CtNewMethod
-                .make("public void bar() { foo = 3; }", dst));
-        dst.addMethod(CtNewMethod
-                .make("public void foo() { foo = 2; bar(); }", dst));
+        dst.addMethod(CtNewMethod.make("public void bar() { foo = 3; }", dst));
+        dst.addMethod(CtNewMethod.make("public void foo() { foo = 2; bar(); }", dst));
 
         // WHEN
-        mimicCreator.mimicMethods(src, dst, MimicMode.AFTER, new MimicMethod[] {new MimicMethod() {
-
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return MimicMethod.class;
-            }
-
-            @Override
-            public MimicMode mode() {
-                return MimicMode.AFTER;
-            }
-
-            @Override
-            public String methodName() {
-                return "foo";
-            }
-
-            @Override
-            public String insertionMethod() {
-                return "bar";
-            }
-        }
-        });
+        MimicMethod mimicMethod = createMimicMethod(MimicMode.AFTER, "foo", "bar");
+        mimicCreator.mimicMethods(src, dst, MimicMode.AFTER, new MimicMethod[] { mimicMethod });
 
         // THEN
         Class<?> dstClass = dst.toClass();
@@ -395,35 +403,12 @@ public class MimicCreatorTest {
         src.addMethod(CtNewMethod.make("public void foo() { foo = 4; }", src));
 
         dst.addField(new CtField(CtClass.intType, "foo", dst));
-        dst.addMethod(CtNewMethod
-                .make("public void bar() { foo *= 2 ; }", dst));
-        dst.addMethod(CtNewMethod
-                .make("public void foo() { foo = 2; bar(); }", dst));
+        dst.addMethod(CtNewMethod.make("public void bar() { foo *= 2 ; }", dst));
+        dst.addMethod(CtNewMethod.make("public void foo() { foo = 2; bar(); }", dst));
 
         // WHEN
-        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE, new MimicMethod[] {new MimicMethod() {
-
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return MimicMethod.class;
-            }
-
-            @Override
-            public MimicMode mode() {
-                return MimicMode.BEFORE;
-            }
-
-            @Override
-            public String methodName() {
-                return "foo";
-            }
-
-            @Override
-            public String insertionMethod() {
-                return "bar";
-            }
-        }
-        });
+        MimicMethod mimicMethod = createMimicMethod(MimicMode.BEFORE, "foo", "bar");
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE, new MimicMethod[] { mimicMethod });
 
         // THEN
         Class<?> dstClass = dst.toClass();
@@ -443,40 +428,16 @@ public class MimicCreatorTest {
         CtField field = new CtField(CtClass.intType, "foo", dstAncestor);
         field.setModifiers(Modifier.PUBLIC);
         dstAncestor.addField(field);
-        dstAncestor.addMethod(CtNewMethod
-                .make("public void bar() {}", dstAncestor));
-        dstAncestor.addConstructor(CtNewConstructor
-                .make("public " + dstAncestor.getName() + "() {}", dstAncestor));
+        dstAncestor.addMethod(CtNewMethod.make("public void bar() {}", dstAncestor));
+        dstAncestor.addConstructor(CtNewConstructor.make("public " + dstAncestor.getName() + "() {}", dstAncestor));
         dst.setSuperclass(dstAncestor);
 
         dst.addField(new CtField(CtClass.intType, "foo", dst));
-        dst.addMethod(CtNewMethod
-                .make("public void foo() { foo = 2; bar(); }", dst));
+        dst.addMethod(CtNewMethod.make("public void foo() { foo = 2; bar(); }", dst));
 
         // WHEN
-        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE, new MimicMethod[] {new MimicMethod() {
-
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return MimicMethod.class;
-            }
-
-            @Override
-            public MimicMode mode() {
-                return MimicMode.BEFORE;
-            }
-
-            @Override
-            public String methodName() {
-                return "foo";
-            }
-
-            @Override
-            public String insertionMethod() {
-                return "bar";
-            }
-        }
-        });
+        MimicMethod mimicMethod = createMimicMethod(MimicMode.BEFORE, "foo", "bar");
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE, new MimicMethod[] { mimicMethod });
         dstAncestor.toClass();
 
         // THEN
@@ -495,8 +456,7 @@ public class MimicCreatorTest {
 
         CtField field = new CtField(CtClass.intType, "foo", dst);
         dst.addField(field);
-        dst.addMethod(CtNewMethod
-                .make("public void foo() { foo *= 2; }", dst));
+        dst.addMethod(CtNewMethod.make("public void foo() { foo *= 2; }", dst));
 
         // WHEN
         mimicCreator.mimicMethods(src, dst, MimicMode.AT_BEGINNING, new MimicMethod[0]);
@@ -513,10 +473,8 @@ public class MimicCreatorTest {
     public void testMimicMethods_with_key() throws Exception {
         // GIVEN
         mimicCreator = new MimicCreator("bar");
-        src.addMethod(CtNewMethod.make("public boolean foo() { return true;}",
-                src));
-        dst.addMethod(CtNewMethod.make("public boolean foo() { return true;}",
-                dst));
+        src.addMethod(CtNewMethod.make("public boolean foo() { return true;}", src));
+        dst.addMethod(CtNewMethod.make("public boolean foo() { return true;}", dst));
 
         // WHEN
         mimicCreator.mimicMethods(src, dst, MimicMode.AFTER_SUPER, new MimicMethod[0]);
@@ -529,15 +487,14 @@ public class MimicCreatorTest {
     public void testMimicMethods_with_same_method_with_params() throws Exception {
         // GIVEN
         src.addMethod(CtNewMethod.make("public boolean foo(int a) { return true; }", src));
-        dst.addMethod(CtNewMethod.make("public boolean foo(int a) { return true;}",
-                dst));
+        dst.addMethod(CtNewMethod.make("public boolean foo(int a) { return true;}", dst));
 
         // WHEN
         mimicCreator.mimicFields(src, dst);
         mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE_RETURN, new MimicMethod[0]);
 
         // THEN
-        assertHasMethod(dst.toClass(), "foo", new Class<?>[] {int.class});
+        assertHasMethod(dst.toClass(), "foo", new Class<?>[] { int.class });
     }
 
     private void assertHasFooField(CtClass dst) throws Exception {
@@ -559,8 +516,7 @@ public class MimicCreatorTest {
         assertEquals(value, realFooField.get(dstInstance));
     }
 
-    private void invokeFoo(Object dstInstance) throws NoSuchMethodException,
-    IllegalAccessException, InvocationTargetException {
+    private void invokeFoo(Object dstInstance) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Method realFooMethod;
         try {
             realFooMethod = dstInstance.getClass().getDeclaredMethod("foo");
@@ -575,8 +531,7 @@ public class MimicCreatorTest {
         assertNotNull(fooField);
         CtClass fooFieldType = fooField.getType();
         assertEquals(CtClass.intType, fooFieldType);
-        CtConstructor constructor = dst.getConstructor(Descriptor
-                .ofConstructor(null));
+        CtConstructor constructor = dst.getConstructor(Descriptor.ofConstructor(null));
         assertNotNull(constructor);
         // we also need to check if code has been copied
         Object dstInstance = dstClass.newInstance();
@@ -605,7 +560,6 @@ public class MimicCreatorTest {
         Constructor<?> dstInstance = dstClass.getConstructor(paramTypes);
         assertNotNull(dstInstance.newInstance(params));
     }
-
 
     private void assertHasFooMethod(CtClass dst, Class<?> dstClass) throws Exception {
         CtMethod fooMethod = dst.getDeclaredMethod("foo");
@@ -643,5 +597,30 @@ public class MimicCreatorTest {
         assertNotNull(fooInterface);
         Class<?> realInterface = dstClass.getInterfaces()[0];
         assertEquals(realInterface, interfaceClass);
+    }
+
+    private MimicMethod createMimicMethod(final MimicMode mimicMode, final String methodName, final String insertionMethod) {
+        return new MimicMethod() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return MimicMethod.class;
+            }
+
+            @Override
+            public MimicMode mode() {
+                return mimicMode;
+            }
+
+            @Override
+            public String methodName() {
+                return methodName;
+            }
+
+            @Override
+            public String insertionMethod() {
+                return insertionMethod;
+            }
+        };
     }
 }

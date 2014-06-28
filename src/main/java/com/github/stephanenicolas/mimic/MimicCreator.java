@@ -323,6 +323,9 @@ public class MimicCreator {
                             replacement = invokeCopy + "$_ = $proceed($$);\n";
                             break;
                         case REPLACE_SUPER :
+                            if (!m.isSuper()) {
+                                return;
+                            }
                             replacement = "$_ = " + invokeCopy;
                             break;
                         default:
