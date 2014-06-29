@@ -504,6 +504,19 @@ public class MimicCreatorTest {
         assertHasMethod(dst.toClass(), "_copy_bar_foo", null);
     }
 
+    @Test(expected=MimicException.class)
+    public void testMimicMethods_with_empty_after() throws Exception {
+        // GIVEN
+        mimicCreator = new MimicCreator("bar");
+        src.addMethod(CtNewMethod.make("public boolean foo() { return true;}", src));
+        dst.addMethod(CtNewMethod.make("public boolean foo() { return true;}", dst));
+
+        // WHEN
+        mimicCreator.mimicMethods(src, dst, MimicMode.AFTER, new MimicMethod[0]);
+
+        // THEN
+    }
+
     @Test
     public void testMimicMethods_with_same_method_with_params() throws Exception {
         // GIVEN
