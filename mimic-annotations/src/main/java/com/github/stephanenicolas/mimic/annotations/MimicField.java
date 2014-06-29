@@ -8,5 +8,6 @@ import java.lang.annotation.Target;
  * @author SNI
  */
 public @interface MimicField {
+    /** Name of the field to mimic.*/
     String fieldName();
 }

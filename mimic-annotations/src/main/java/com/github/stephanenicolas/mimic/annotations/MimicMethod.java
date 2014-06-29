@@ -9,9 +9,9 @@ public @interface MimicMethod {
     /** The name of the method to mimic. Due to an issue in javassist (#9 on github), one of the overloads will be picked here.*/
     String methodName();
 
-    /** The mode of mimicing.*/
+    /** The mode of mimicing. Defaults to {@link MimicMode.AFTER_SUPER}.*/
     MimicMode mode() default MimicMode.AFTER_SUPER;
 
-    /** The method after or before which to inject mimiced code.*/
+    /** The method after or before which to inject mimiced code. Only used for {@link MimicMode#AFTER} and  {@link MimicMode#BEFORE}*/
     String insertionMethod() default "";
 }

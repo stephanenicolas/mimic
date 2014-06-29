@@ -1,5 +1,9 @@
 package com.github.stephanenicolas.mimic.sample;
 
+/**
+ * This template will be injected by {@code Example}.
+ * @author SNI
+ */
 public class ExampleTemplate {
 
     public ExampleTemplate() {

@@ -1,5 +1,9 @@
 package com.github.stephanenicolas.mimic.sample;
 
+/**
+ * Simple {@code Example} launcher.
+ * @author SNI
+ */
 public final class Main {
     private Main() {
     }
