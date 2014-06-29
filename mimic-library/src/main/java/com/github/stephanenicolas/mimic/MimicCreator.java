@@ -217,7 +217,7 @@ public class MimicCreator {
         }
     }
 
-    public void mimicMethods(CtClass src, CtClass dst, MimicMode defaultMimicMode, MimicMethod[] mimicMethods) throws CannotCompileException, NotFoundException {
+    public void mimicMethods(CtClass src, CtClass dst, MimicMode defaultMimicMode, MimicMethod[] mimicMethods) throws MimicException, CannotCompileException, NotFoundException {
         HashMap<String, MimicMode> mapNameToMimicMode = buildMimicModeMethodMap(mimicMethods);
         HashMap<String, String> mapNameToInsertionMethod = buildInsertionMethodMap(mimicMethods);
 
@@ -252,12 +252,20 @@ public class MimicCreator {
                             break;
                         case BEFORE:
                         case AFTER:
-                            methodInDest.instrument(new ReplaceExprEditor(copiedMethodName, method, insertionMethod, mimicMode));
+                            ReplaceExprEditor editor = new ReplaceExprEditor(copiedMethodName, method, insertionMethod, mimicMode);
+                            methodInDest.instrument(editor);
+                            if (!editor.isSuccessful()) {
+                                throw new MimicException("No replacement for method:" + method.getName() + " with insertion AFTER " + (insertionMethod == null ? "insertion method is null" : insertionMethod.getName()));
+                            }
                             break;
                         case BEFORE_SUPER:
                         case AFTER_SUPER:
                         case REPLACE_SUPER:
-                            methodInDest.instrument(new ReplaceExprEditor(copiedMethodName, method, mimicMode));
+                            ReplaceExprEditor editor2 = new ReplaceExprEditor(copiedMethodName, method, mimicMode);
+                            methodInDest.instrument(editor2);
+                            if (!editor2.isSuccessful()) {
+                                throw new MimicException("No replacement for method:" + method.getName() + " with insertion REPLACE_SUPER ");
+                            }
                             break;
                         default:
                             break;
@@ -294,6 +302,7 @@ public class MimicCreator {
         private final CtMethod originalMethod;
         private final CtMethod insertionMethod;
         private final MimicMode mode;
+        private boolean isSuccessful = false;
 
         private ReplaceExprEditor(String copiedMethodName, CtMethod originalMethod, MimicMode mode) {
             this(copiedMethodName, originalMethod, originalMethod, mode);
@@ -350,9 +359,13 @@ public class MimicCreator {
                 }
                 log.fine("Replaced by " + replacement);
                 m.replace(replacement);
+                isSuccessful = true;
             }
-
             super.edit(m);
+        }
+
+        public boolean isSuccessful() {
+            return isSuccessful;
         }
     }
 }

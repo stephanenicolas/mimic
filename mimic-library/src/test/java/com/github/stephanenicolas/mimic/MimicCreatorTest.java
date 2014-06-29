@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -17,7 +18,6 @@ import javassist.CtMethod;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import javassist.Modifier;
-import javassist.NotFoundException;
 import javassist.bytecode.Descriptor;
 
 import org.junit.Before;
@@ -192,20 +192,20 @@ public class MimicCreatorTest {
         assertHasFooMethod(dst, dstClass);
     }
 
-    @Test(expected=NotFoundException.class)
+    @Test(expected=CannotCompileException.class)
     public void testMimicMethods_with_same_methods_but_non_existing_param() throws Exception {
         // GIVEN
         CtClass paramClass = ClassPool.getDefault().makeClass("Param" + TestCounter.testCounter);
 
         src.addField(new CtField(CtClass.intType, "foo", src));
-        src.addMethod(CtNewMethod.make("public boolean foo(" + paramClass.getName() + " a) { return true; }", src));
-        dst.addMethod(CtNewMethod.make("public boolean foo(" + paramClass.getName() + " a) { return false;}", dst));
+        src.addMethod(CtNewMethod.make("public boolean foo(" + paramClass.getName() + " a) { System.out.println(); return true; }", src));
+        dst.addMethod(CtNewMethod.make("public boolean foo(" + paramClass.getName() + " a) { System.out.println(); return false;}", dst));
 
         paramClass.detach();
 
         // WHEN
         mimicCreator.mimicFields(src, dst);
-        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE_RETURN, new MimicMethod[0]);
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE, new MimicMethod[0]);
 
         // THEN
         //should fail
@@ -265,7 +265,7 @@ public class MimicCreatorTest {
         assertHasFooMethod(dst, dst.toClass());
     }
 
-    @Test
+    @Test(expected=MimicException.class)
     public void testMimicMethods_with_same_methods_with_replace_override_but_not_calling_super() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
@@ -283,7 +283,6 @@ public class MimicCreatorTest {
         mimicCreator.mimicMethods(src, dst, MimicMode.REPLACE_SUPER, new MimicMethod[0]);
 
         // THEN
-        assertHasFooMethod(dst, dst.toClass());
     }
 
     @Test
@@ -314,7 +313,7 @@ public class MimicCreatorTest {
         assertHasFooMethod(dst, dstClass);
     }
 
-    @Test
+    @Test(expected=MimicException.class)
     public void testMimicMethods_with_same_methods_with_before_super_but_not_calling_super() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
@@ -369,7 +368,7 @@ public class MimicCreatorTest {
         assertHasFooField(dstInstance, 3);
     }
 
-    @Test
+    @Test(expected=MimicException.class)
     public void testMimicMethods_with_same_methods_with_after_super_but_not_calling_super() throws Exception {
         // GIVEN
         src.addField(new CtField(CtClass.intType, "foo", src));
@@ -499,7 +498,7 @@ public class MimicCreatorTest {
         dst.addMethod(CtNewMethod.make("public boolean foo() { return true;}", dst));
 
         // WHEN
-        mimicCreator.mimicMethods(src, dst, MimicMode.AFTER_SUPER, new MimicMethod[0]);
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE_RETURN, new MimicMethod[0]);
 
         // THEN
         assertHasMethod(dst.toClass(), "_copy_bar_foo", null);
