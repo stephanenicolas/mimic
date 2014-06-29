@@ -17,6 +17,7 @@
 
         <modules>
                <module>mimic-library</module>
+               <module>mimic-sample</module>
         </modules>
 	<scm>
 		<connection>scm:git:ssh://git@github.com/stephanenicolas/mimic.git</connection>
