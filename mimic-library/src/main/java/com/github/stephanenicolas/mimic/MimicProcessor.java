@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import com.github.stephanenicolas.mimic.annotations.Mimic;
 import com.github.stephanenicolas.mimic.annotations.MimicMethod;
+import com.google.inject.Guice;
 
 import de.icongmbh.oss.maven.plugin.javassist.ClassTransformer;
 
@@ -24,6 +25,10 @@ public class MimicProcessor extends ClassTransformer {
 
     @Inject
     private MimicCreator mimic;
+
+    public MimicProcessor() {
+        Guice.createInjector().injectMembers(this);
+    }
 
     @Override
     protected void applyTransformations(final CtClass classToTransform) throws ClassNotFoundException, NotFoundException,

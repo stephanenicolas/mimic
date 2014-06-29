@@ -1,7 +1,11 @@
 package com.github.stephanenicolas.mimic.sample;
 
-public class Main {
-	public static void main(String[] args) {
+public final class Main {
+    private Main() {
+    }
 
-	}
+    public static void main(String[] args) {
+        Example example = new Example();
+        example.doStuff();
+    }
 }
