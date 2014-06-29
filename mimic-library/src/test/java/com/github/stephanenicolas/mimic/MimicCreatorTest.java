@@ -102,6 +102,7 @@ public class MimicCreatorTest {
         mimicCreator.mimicConstructors(src, dst);
 
         // THEN
+        assertEquals("bar", mimicCreator.getKey());
         assertHasMethod(dst.toClass(), "_copy_bar_" + src.getName(), null);
     }
 

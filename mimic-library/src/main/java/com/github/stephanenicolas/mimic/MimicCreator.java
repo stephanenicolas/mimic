@@ -167,14 +167,14 @@ public class MimicCreator {
 
     public void mimicConstructors(CtClass src, CtClass dst) throws CannotCompileException, NotFoundException {
         for (final CtConstructor constructor : src.getDeclaredConstructors()) {
-            System.out.println("Mimic constructor " + constructor.getName());
+            log.fine("Mimic constructor " + constructor.getName());
             boolean destHasSameConstructor = false;
             for (CtConstructor constructorInDest : dst.getDeclaredConstructors()) {
                 String signature = constructor.getSignature();
                 String signatureInDest = constructorInDest.getSignature();
                 if (signatureInDest.equals(signature)) {
                     destHasSameConstructor = true;
-                    System.out.println("Forwarding " + constructor.getName());
+                    log.fine("Forwarding " + constructor.getName());
                     String key = this.key == null ? "" : (this.key + "_");
                     final String copiedConstructorName = "_copy_" + key + constructor.getName();
                     dst.addMethod(constructor.toMethod(copiedConstructorName, dst));
@@ -189,12 +189,12 @@ public class MimicCreator {
                         params = params.substring(0, params.length() - 1);
                     }
                     String string = copiedConstructorName + "(" + params + ");\n";
-                    System.out.println("swinged " + string);
+                    log.fine("Injected constructor " + string);
                     constructorInDest.insertAfter(string);
                 }
             }
             if (!destHasSameConstructor) {
-                System.out.println("Copying " + constructor.getName());
+                log.fine("Copying " + constructor.getName());
                 dst.addConstructor(CtNewConstructor.copy(constructor, dst, null));
             }
         }
@@ -222,14 +222,14 @@ public class MimicCreator {
         HashMap<String, String> mapNameToInsertionMethod = buildInsertionMethodMap(mimicMethods);
 
         for (final CtMethod method : src.getDeclaredMethods()) {
-            System.out.println("Mimic method " + method.getName());
+            log.fine("Mimic method " + method.getName());
             boolean destHasSameMethod = false;
             for (CtMethod methodInDest : dst.getDeclaredMethods()) {
                 String signature = method.getSignature() + method.getName();
                 String signatureInDest = methodInDest.getSignature() + methodInDest.getName();
                 if (signatureInDest.equals(signature)) {
                     destHasSameMethod = true;
-                    System.out.println("Forwarding " + method.getName());
+                    log.fine("Forwarding " + method.getName());
                     String key = this.key == null ? "" : (this.key + "_");
                     final String copiedMethodName = "_copy_" + key + method.getName();
                     dst.addMethod(CtNewMethod.copy(method, copiedMethodName, dst, null));
@@ -241,6 +241,7 @@ public class MimicCreator {
                         String insertionMethodName = mapNameToInsertionMethod.get(method.getName());
                         insertionMethod = findMethod(dst, insertionMethod, insertionMethodName);
                     }
+                    log.fine("Mimic mode " + mimicMode);
                     switch (mimicMode) {
                         case AT_BEGINNING:
                             methodInDest.insertBefore(createInvocation(methodInDest, copiedMethodName));
@@ -264,7 +265,7 @@ public class MimicCreator {
                 }
             }
             if (!destHasSameMethod) {
-                System.out.println("Copying " + method.getName());
+                log.fine("Copying " + method.getName());
                 dst.addMethod(CtNewMethod.copy(method, dst, null));
             }
         }

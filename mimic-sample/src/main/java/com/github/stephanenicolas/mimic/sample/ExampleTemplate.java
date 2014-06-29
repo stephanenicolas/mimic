@@ -9,4 +9,8 @@ public class ExampleTemplate {
     public void doStuff() {
         System.out.println("Inside doStuff");
     }
+
+    public void doOtherStuff() {
+    	System.out.println("Inside doOtherStuff");
+    }
 }

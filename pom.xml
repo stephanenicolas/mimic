@@ -215,4 +215,15 @@
 			<url>file://${basedir}/../maven_repo_3rd_party</url>
 		</repository>
 	</repositories>
+
+	<profiles>
+		<profile>
+			<id>fast</id>
+			<properties>
+				<skipTests>true</skipTests>
+				<checkstyle.skip>true</checkstyle.skip>
+				<findbugs.skip>true</findbugs.skip>
+			</properties>
+		</profile>
+	</profiles>
 </project>
