@@ -1,5 +1,9 @@
 package com.github.stephanenicolas.mimic.annotations;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+
+@Target({ElementType.TYPE})
 /**
  * Can be used to mimic a class via post processing. On the target class, add
  * this annotation.
