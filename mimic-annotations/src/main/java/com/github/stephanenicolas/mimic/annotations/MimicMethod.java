@@ -2,8 +2,8 @@ package com.github.stephanenicolas.mimic.annotations;
 
 import java.lang.annotation.Target;
 
-@Target({})
-/** Defines how to mimic methods.*/
+@Target({ })
+/** Defines how to mimic methods. Can only be used inside {@link Mimic}. */
 public @interface MimicMethod {
 
     /** The name of the method to mimic. Due to an issue in javassist (#9 on github), one of the overloads will be picked here.*/
