@@ -20,7 +20,7 @@
 		<module>mimic-library</module>
 		<module>mimic-sample</module>
 	</modules>
-	
+
 	<scm>
 		<connection>scm:git:ssh://git@github.com/stephanenicolas/mimic.git</connection>
 		<url>git:ssh://git@github.com/stephanenicolas/mimic.git</url>
@@ -54,6 +54,8 @@
 		<eclipse-lifecycle-plugin.version>1.0.0</eclipse-lifecycle-plugin.version>
 		<maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version>
 		<findbugs-maven-plugin.version>2.5.3</findbugs-maven-plugin.version>
+		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
+		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 	</properties>
 
 	<build>
@@ -68,38 +70,64 @@
 						<target>${java.version}</target>
 					</configuration>
 				</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>${maven-checkstyle-plugin.version}</version>
-				<configuration>
-					<configLocation>mimic_checks.xml</configLocation>
-					<enableRulesSummary>false</enableRulesSummary>
-				</configuration>
-				<executions>
-					<execution>
-						<id>checkstyle-check</id>
-						<phase>process-sources</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>${findbugs-maven-plugin.version}</version>
-				<executions>
-					<execution>
-						<id>findbugs-check</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>				
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>${maven-checkstyle-plugin.version}</version>
+					<configuration>
+						<configLocation>mimic_checks.xml</configLocation>
+						<enableRulesSummary>false</enableRulesSummary>
+					</configuration>
+					<executions>
+						<execution>
+							<id>checkstyle-check</id>
+							<phase>process-sources</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>findbugs-maven-plugin</artifactId>
+					<version>${findbugs-maven-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>findbugs-check</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${maven-jar-plugin.version}</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>test-jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${maven-source-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 				<!-- Eclipse config -->
 				<!-- http://stackoverflow.com/questions/13040788/how-to-elimate-the-maven-enforcer-plugin-goal-enforce-is-ignored-by-m2e-wa -->
 				<plugin>
