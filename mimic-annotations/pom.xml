@@ -19,8 +19,6 @@
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 		<maven-javadoc-plugin.version>2.8</maven-javadoc-plugin.version>
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
-		<maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version>
-		<findbugs-maven-plugin.version>2.5.3</findbugs-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.7.1.201405082137</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
 
@@ -52,11 +50,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -91,34 +84,10 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>${maven-checkstyle-plugin.version}</version>
-				<configuration>
-					<configLocation>mimic_checks.xml</configLocation>
-					<enableRulesSummary>false</enableRulesSummary>
-				</configuration>
-				<executions>
-					<execution>
-						<id>checkstyle-check</id>
-						<phase>process-sources</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>${findbugs-maven-plugin.version}</version>
-				<executions>
-					<execution>
-						<id>findbugs-check</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
