@@ -16,6 +16,7 @@
 	</parent>
 
         <modules>
+               <module>mimic-annotations</module>
                <module>mimic-library</module>
                <module>mimic-sample</module>
         </modules>

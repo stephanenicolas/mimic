@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import com.github.stephanenicolas.mimic.annotations.Mimic;
 import com.github.stephanenicolas.mimic.annotations.MimicMethod;
+import com.github.stephanenicolas.mimic.annotations.MimicMode;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 

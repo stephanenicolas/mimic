@@ -1,4 +1,4 @@
-package com.github.stephanenicolas.mimic;
+package com.github.stephanenicolas.mimic.annotations;
 
 public enum MimicMode {
     AT_BEGINNING,

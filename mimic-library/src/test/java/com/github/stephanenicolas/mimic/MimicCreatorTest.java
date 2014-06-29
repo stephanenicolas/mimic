@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.github.stephanenicolas.mimic.annotations.MimicMethod;
+import com.github.stephanenicolas.mimic.annotations.MimicMode;
 
 public class MimicCreatorTest {
 

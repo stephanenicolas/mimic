@@ -26,7 +26,7 @@
 		<!-- DEPENDENCIES -->
 		<dependency>
 			<groupId>com.github.stephanenicolas.mimic</groupId>
-			<artifactId>mimic-library</artifactId>
+			<artifactId>mimic-annotations</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

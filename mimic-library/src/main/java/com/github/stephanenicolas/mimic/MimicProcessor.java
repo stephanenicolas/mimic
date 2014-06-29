@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import com.github.stephanenicolas.mimic.annotations.Mimic;
 import com.github.stephanenicolas.mimic.annotations.MimicMethod;
+import com.github.stephanenicolas.mimic.annotations.MimicMode;
 import com.google.inject.Guice;
 
 import de.icongmbh.oss.maven.plugin.javassist.ClassTransformer;

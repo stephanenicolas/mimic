@@ -1,7 +1,5 @@
 package com.github.stephanenicolas.mimic.annotations;
 
-import com.github.stephanenicolas.mimic.MimicMode;
-
 /** Defines how to mimic methods.*/
 public @interface MimicMethod {
 

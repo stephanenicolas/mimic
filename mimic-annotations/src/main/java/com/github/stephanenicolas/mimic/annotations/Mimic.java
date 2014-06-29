@@ -1,13 +1,10 @@
 package com.github.stephanenicolas.mimic.annotations;
 
-import com.github.stephanenicolas.mimic.MimicMode;
-
 /**
  * Can be used to mimic a class via post processing. On the target class, add
  * this annotation.
- * 
- * @author SNI
  *
+ * @author SNI
  */
 public @interface Mimic {
     // http://stackoverflow.com/a/7070325/693752
@@ -25,7 +22,7 @@ public @interface Mimic {
 
     /** Whether or not to mimic methods. Defaults to true. */
     boolean isMimicingMethods() default true;
-    
+
     /** Defines which methods are copied, and how. If not defined, they are all copied, using default mimic mode.*/
     MimicMethod[] mimicMethods() default { };
 

@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>mimic-library</artifactId>
-	<name>Mimic Library</name>
-	<description>The library.</description>
+	<artifactId>mimic-annotations</artifactId>
+	<name>Mimic Annotations.</name>
+	<description>The annotations of the library. Should be included in runtime scope of projects using mimic.</description>
 
 	<parent>
 		<groupId>com.github.stephanenicolas.mimic</groupId>
@@ -51,11 +51,6 @@
 		</dependency>
 
 		<!-- DEPENDENCIES -->
-		<dependency>
-		<groupId>com.github.stephanenicolas.mimic</groupId>
-		<artifactId>mimic-annotations</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -192,62 +187,21 @@
 			<id>coverage</id>
 			<build>
 				<plugins>
-					<!-- CODE COVERAGE FOR UNIT-TESTS http://www.javacodegeeks.com/2013/08/creating-code-coverage-reports-for-unit-and-integration-tests-with-the-jacoco-maven-plugin.html -->
 					<plugin>
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
 						<version>${jacoco-maven-plugin.version}</version>
 						<configuration>
-							<excludes>
-								<exclude>**/*Exception.class</exclude>
-							</excludes>
+							<skip>true</skip>
 						</configuration>
-						<executions>
-							<!-- Prepares the property pointing to the JaCoCo runtime agent which 
-								is passed as VM argument when Maven the Surefire plugin is executed. -->
-							<execution>
-								<id>pre-unit-test</id>
-								<goals>
-									<goal>prepare-agent</goal>
-								</goals>
-								<configuration>
-									<!-- Sets the path to the file which contains the execution data. -->
-									<destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
-								</configuration>
-							</execution>
-							<!-- Ensures that the code coverage report for unit tests is created 
-								after unit tests have been run. -->
-							<execution>
-								<id>post-unit-test</id>
-								<phase>test</phase>
-								<goals>
-									<goal>report</goal>
-								</goals>
-								<configuration>
-									<!-- Sets the path to the file which contains the execution data. -->
-									<dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
-									<!-- Sets the output directory for the code coverage report. -->
-									<outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-								</configuration>
-							</execution>
-						</executions>
 					</plugin>
 					<plugin>
 						<groupId>org.eluder.coveralls</groupId>
 						<artifactId>coveralls-maven-plugin</artifactId>
 						<version>${coveralls-maven-plugin.version}</version>
-						<executions>
-							<execution>
-								<id>post-unit-test</id>
-								<phase>test</phase>
-								<goals>
-									<goal>jacoco</goal>
-								</goals>
-								<configuration>
-									<coverageFile>${project.reporting.outputDirectory}/jacoco-ut/jacoco.xml</coverageFile>
-								</configuration>
-							</execution>
-						</executions>
+						<configuration>
+							<skip>true</skip>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>

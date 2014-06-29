@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 
 import com.github.stephanenicolas.mimic.annotations.MimicMethod;
+import com.github.stephanenicolas.mimic.annotations.MimicMode;
 
 /**
  * Enables mimicing a class. Mimicing is, indeed, kind of way to bypass java
