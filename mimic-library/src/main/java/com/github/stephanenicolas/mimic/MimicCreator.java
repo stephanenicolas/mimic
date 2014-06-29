@@ -238,20 +238,7 @@ public class MimicCreator {
                     if (mapNameToMimicMode.containsKey(method.getName())) {
                         mimicMode = mapNameToMimicMode.get(method.getName());
                         String insertionMethodName = mapNameToInsertionMethod.get(method.getName());
-                        if (insertionMethodName != null) {
-                            for (CtMethod methodInDest2 : dst.getDeclaredMethods()) {
-                                if (methodInDest2.getName().equals(insertionMethodName)) {
-                                    insertionMethod = methodInDest2;
-                                }
-                            }
-                            if (insertionMethod == null) {
-                                for (CtMethod methodInDest2 : dst.getMethods()) {
-                                    if (methodInDest2.getName().equals(insertionMethodName)) {
-                                        insertionMethod = methodInDest2;
-                                    }
-                                }
-                            }
-                        }
+                        insertionMethod = findMethod(dst, insertionMethod, insertionMethodName);
                     }
                     switch (mimicMode) {
                         case AT_BEGINNING:
@@ -263,12 +250,12 @@ public class MimicCreator {
                             break;
                         case BEFORE:
                         case AFTER:
-                            methodInDest.instrument(new ReplaceSuperExprEditor(copiedMethodName, method, insertionMethod, mimicMode));
+                            methodInDest.instrument(new ReplaceExprEditor(copiedMethodName, method, insertionMethod, mimicMode));
                             break;
                         case BEFORE_SUPER:
                         case AFTER_SUPER:
                         case REPLACE_SUPER:
-                            methodInDest.instrument(new ReplaceSuperExprEditor(copiedMethodName, method, mimicMode));
+                            methodInDest.instrument(new ReplaceExprEditor(copiedMethodName, method, mimicMode));
                             break;
                         default:
                             break;
@@ -282,17 +269,35 @@ public class MimicCreator {
         }
     }
 
-    private final class ReplaceSuperExprEditor extends ExprEditor {
+    private CtMethod findMethod(CtClass dst, CtMethod insertionMethod, String insertionMethodName) {
+        if (insertionMethodName != null) {
+            for (CtMethod methodInDest2 : dst.getDeclaredMethods()) {
+                if (methodInDest2.getName().equals(insertionMethodName)) {
+                    insertionMethod = methodInDest2;
+                }
+            }
+            if (insertionMethod == null) {
+                for (CtMethod methodInDest2 : dst.getMethods()) {
+                    if (methodInDest2.getName().equals(insertionMethodName)) {
+                        insertionMethod = methodInDest2;
+                    }
+                }
+            }
+        }
+        return insertionMethod;
+    }
+
+    private final class ReplaceExprEditor extends ExprEditor {
         private final String copiedMethodName;
         private final CtMethod originalMethod;
         private final CtMethod insertionMethod;
         private final MimicMode mode;
 
-        private ReplaceSuperExprEditor(String copiedMethodName, CtMethod originalMethod, MimicMode mode) {
+        private ReplaceExprEditor(String copiedMethodName, CtMethod originalMethod, MimicMode mode) {
             this(copiedMethodName, originalMethod, originalMethod, mode);
         }
 
-        private ReplaceSuperExprEditor(String copiedMethodName, CtMethod originalMethod, CtMethod insertionMethod, MimicMode mode) {
+        private ReplaceExprEditor(String copiedMethodName, CtMethod originalMethod, CtMethod insertionMethod, MimicMode mode) {
             this.copiedMethodName = copiedMethodName;
             this.originalMethod = originalMethod;
             this.insertionMethod = insertionMethod;
@@ -324,6 +329,7 @@ public class MimicCreator {
 
             // call to super
             if (m.getMethodName().equals(insertionMethod.getName())) {
+                log.fine("Insertion point detected: " + insertionMethod.getName());
                 String replacement = "";
                 switch (mode) {
                     case AFTER_SUPER:
@@ -340,7 +346,7 @@ public class MimicCreator {
                     default:
                         break;
                 }
-                System.out.println("swinged " + replacement);
+                log.fine("Replaced by " + replacement);
                 m.replace(replacement);
             }
 
