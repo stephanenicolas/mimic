@@ -17,6 +17,9 @@
 		<coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
 		<javassist-maven-plugin.version>1.1.0-SNAPSHOT</javassist-maven-plugin.version>
 		<maven-deploy-plugin.version>2.7</maven-deploy-plugin.version>
+		
+		<!-- DEPENDENCIES -->
+		<mimic-library.version>1.0.0-SNAPSHOT</mimic-library.version>
 	</properties>
 
 	<dependencies>
@@ -24,7 +27,7 @@
 		<dependency>
 			<groupId>com.github.stephanenicolas.mimic</groupId>
 			<artifactId>mimic-annotations</artifactId>
-			<version>${project.version}</version>
+			<version>${mimic-library.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -63,7 +66,7 @@
 					<dependency>
 						<groupId>com.github.stephanenicolas.mimic</groupId>
 						<artifactId>mimic-library</artifactId>
-						<version>${project.version}</version>
+						<version>${mimic-library.version}</version>
 					</dependency>
 				</dependencies>
 			</plugin>
