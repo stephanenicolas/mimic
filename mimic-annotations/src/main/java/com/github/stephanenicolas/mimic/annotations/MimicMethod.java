@@ -1,5 +1,8 @@
 package com.github.stephanenicolas.mimic.annotations;
 
+import java.lang.annotation.Target;
+
+@Target({})
 /** Defines how to mimic methods.*/
 public @interface MimicMethod {
 
