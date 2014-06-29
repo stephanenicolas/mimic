@@ -21,47 +21,17 @@
 		<maven-compiler-plugin.version>2.5.1</maven-compiler-plugin.version>
 		<maven-checkstyle-plugin.version>2.11</maven-checkstyle-plugin.version>
 		<findbugs-maven-plugin.version>2.5.3</findbugs-maven-plugin.version>
-		<eclipse-lifecycle-plugin.version>1.0.0</eclipse-lifecycle-plugin.version>
 		<jacoco-maven-plugin.version>0.7.1.201405082137</jacoco-maven-plugin.version>
 		<coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
 
 		<!--LIBRARIES -->
-		<android-map.version>7_r1</android-map.version>
-		<android-support-v4.version>19</android-support-v4.version>
-		<android-appcompat-v7.version>19</android-appcompat-v7.version>
-		<actionbarsherlock.version>4.2.0</actionbarsherlock.version>
 		<jsr305.version>2.0.3</jsr305.version>
 		<findbugs-annotations.version>1.0.0</findbugs-annotations.version>
-		<guice.version>3.0</guice.version>
-		<lombok.version>1.14.2</lombok.version>
 
-		<!--TESTING -->
-		<easymock.version>3.2</easymock.version>
-		<junit.version>4.11</junit.version>
 	</properties>
 
 	<dependencies>
-		<!-- TEST DEPENDENCIES -->
-		<!-- http://stackoverflow.com/a/18463743/693752 -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- DEPENDENCIES -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>de.icongmbh.oss.maven.plugins</groupId>
-			<artifactId>javassist-maven-plugin</artifactId>
-			<version>1.1.0-SNAPSHOT</version>
-		</dependency>
 		<dependency>
 			<groupId>com.google.code.findbugs</groupId>
 			<artifactId>jsr305</artifactId>
@@ -73,20 +43,6 @@
 			<artifactId>annotations</artifactId>
 			<version>${findbugs-annotations.version}</version>
 			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-			<version>${guice.version}</version>
-			<classifier>no_aop</classifier>
-		</dependency>
-
-		<!-- TEST DEPENDENCIES -->
-		<dependency>
-			<groupId>org.easymock</groupId>
-			<artifactId>easymock</artifactId>
-			<version>${easymock.version}</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
