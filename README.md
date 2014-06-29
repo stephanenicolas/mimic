@@ -89,6 +89,7 @@ Simply add the following to your maven build :
 			<groupId>com.github.stephanenicolas.mimic</groupId>
 			<artifactId>mimic-annotations</artifactId>
 			<version>${mimic-library.version}</version>
+			<scope>provided</scope>			
 		</dependency>
 		...
 	</dependencies>
@@ -128,3 +129,5 @@ Simply add the following to your maven build :
 			</plugins>
 	</build>			
 ```
+
+Mimic will not add any byte to your app, but it will cut down boiler plate.
