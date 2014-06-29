@@ -76,6 +76,7 @@ Currently mimic supports :
 
 * copying the code of each constructor of the source class into all constructors of the target class.
 * copying all fields of the source class to the target class. In case a field exists in both class, an exception will be thrown.
+* there are multiple modes to copy methods. See `MimicMode` class.
 
 ## Enable Mimic in maven builds 
 
