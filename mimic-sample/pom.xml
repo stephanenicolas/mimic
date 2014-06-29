@@ -226,56 +226,16 @@
 						<artifactId>jacoco-maven-plugin</artifactId>
 						<version>${jacoco-maven-plugin.version}</version>
 						<configuration>
-							<excludes>
-								<exclude>**/*Exception.class</exclude>
-							</excludes>
+						    <skip>true</skip>
 						</configuration>
-						<executions>
-							<!-- Prepares the property pointing to the JaCoCo runtime agent which 
-								is passed as VM argument when Maven the Surefire plugin is executed. -->
-							<execution>
-								<id>pre-unit-test</id>
-								<goals>
-									<goal>prepare-agent</goal>
-								</goals>
-								<configuration>
-									<!-- Sets the path to the file which contains the execution data. -->
-									<destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
-								</configuration>
-							</execution>
-							<!-- Ensures that the code coverage report for unit tests is created 
-								after unit tests have been run. -->
-							<execution>
-								<id>post-unit-test</id>
-								<phase>test</phase>
-								<goals>
-									<goal>report</goal>
-								</goals>
-								<configuration>
-									<!-- Sets the path to the file which contains the execution data. -->
-									<dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
-									<!-- Sets the output directory for the code coverage report. -->
-									<outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-								</configuration>
-							</execution>
-						</executions>
 					</plugin>
 					<plugin>
 						<groupId>org.eluder.coveralls</groupId>
 						<artifactId>coveralls-maven-plugin</artifactId>
 						<version>${coveralls-maven-plugin.version}</version>
-						<executions>
-							<execution>
-								<id>post-unit-test</id>
-								<phase>test</phase>
-								<goals>
-									<goal>jacoco</goal>
-								</goals>
-								<configuration>
-									<coverageFile>${project.reporting.outputDirectory}/jacoco-ut/jacoco.xml</coverageFile>
-								</configuration>
-							</execution>
-						</executions>
+						<configuration>
+						    <skip>true</skip>
+						</configuration>
 					</plugin>
 				</plugins>
 			</build>
