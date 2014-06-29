@@ -63,6 +63,7 @@
 		<jsr305.version>2.0.3</jsr305.version>
 		<findbugs-annotations.version>1.0.0</findbugs-annotations.version>
 		<guice.version>3.0</guice.version>
+		<lombok.version>1.14.2</lombok.version>
 
 		<!--TESTING -->
 		<easymock.version>3.2</easymock.version>
@@ -80,6 +81,12 @@
 		</dependency>
 
 		<!-- DEPENDENCIES -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>de.icongmbh.oss.maven.plugins</groupId>
 			<artifactId>javassist-maven-plugin</artifactId>

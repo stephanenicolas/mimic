@@ -5,6 +5,5 @@ package com.github.stephanenicolas.mimic.annotations;
  * @author SNI
  */
 public @interface MimicField {
-
     String fieldName();
 }

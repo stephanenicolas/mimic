@@ -12,9 +12,10 @@ import javassist.CtNewMethod;
 import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
+import lombok.Getter;
+import lombok.extern.java.Log;
 
 import com.github.stephanenicolas.mimic.annotations.MimicMethod;
-
 
 /**
  * Enables mimicing a class. Mimicing is, indeed, kind of way to bypass java
@@ -27,17 +28,29 @@ import com.github.stephanenicolas.mimic.annotations.MimicMethod;
  *     private int a;
  *
  *     public Src() {...}
+ *
  *     protected b() {...}
+ *
  *     protected c() {...}
  * }
+ *
+ *
+ *
  * </pre>
+ *
  * and
+ *
  * <pre>
  * public class Dst {
  *     protected c() {...}
  * }
+ *
+ *
+ *
  * </pre>
+ *
  * it will result in
+ *
  * <pre>
  * public class Dst {
  *   public Dst() {...//calling the code of Src() in the end}
@@ -46,11 +59,14 @@ import com.github.stephanenicolas.mimic.annotations.MimicMethod;
  *   protected c() {...//calling the code of Src.c() in the end}
  * }
  * </pre>
+ *
  * @author SNI
  */
+@Log
 public class MimicCreator {
 
     /** A key used to distinguish possibly conflicting copies of a src methods. */
+    @Getter
     private String key;
 
     public MimicCreator() {
@@ -61,6 +77,7 @@ public class MimicCreator {
      * methods, if dst and src share a method with the same name, we have to
      * create a copy of the src method and invoke it from dst methods. The
      * parameter key will be added to the copy name to avoid conflicts.
+     *
      * @param key
      *            used to distinguish possibly conflicting copies of a src
      *            methods.
@@ -69,8 +86,7 @@ public class MimicCreator {
         this.key = key;
     }
 
-    private HashMap<String, MimicMode> buildMimicModeMethodMap(
-            MimicMethod[] mimicMethods) {
+    private HashMap<String, MimicMode> buildMimicModeMethodMap(MimicMethod[] mimicMethods) {
         HashMap<String, MimicMode> mapNameToMimicMode = new HashMap<String, MimicMode>();
         for (MimicMethod method : mimicMethods) {
             mapNameToMimicMode.put(method.methodName(), method.mode());
@@ -78,8 +94,7 @@ public class MimicCreator {
         return mapNameToMimicMode;
     }
 
-    private HashMap<String, String> buildInsertionMethodMap(
-            MimicMethod[] mimicMethods) {
+    private HashMap<String, String> buildInsertionMethodMap(MimicMethod[] mimicMethods) {
         HashMap<String, String> mapNameToMimicMode = new HashMap<String, String>();
         for (MimicMethod method : mimicMethods) {
             mapNameToMimicMode.put(method.methodName(), method.insertionMethod());
@@ -96,16 +111,10 @@ public class MimicCreator {
         }
         String params = buffer.toString();
         if (params.length() > 0) {
-            params = params.substring(0,
-                    params.length() - 1);
+            params = params.substring(0, params.length() - 1);
         }
-        String string = copiedMethodName + "("
-                + params + ");\n";
+        String string = copiedMethodName + "(" + params + ");\n";
         return string;
-    }
-
-    public String getKey() {
-        return key;
     }
 
     public boolean hasField(CtClass clazz, CtField field) {
@@ -132,6 +141,7 @@ public class MimicCreator {
     /**
      * Copies all fields, constructors and methods declared in class src into
      * dst. All interfaces implemented by src will also be implemented by dst.
+     *
      * @param src
      *            the src class.
      * @param dst
@@ -147,8 +157,7 @@ public class MimicCreator {
      *             if mimicing is not possible. For instance if class src and
      *             dst share a common field.
      */
-    public void mimicClass(CtClass src, CtClass dst, MimicMode defaultMimicMode, MimicMethod[] mimicMethods) throws NotFoundException,
-    CannotCompileException, MimicException {
+    public void mimicClass(CtClass src, CtClass dst, MimicMode defaultMimicMode, MimicMethod[] mimicMethods) throws NotFoundException, CannotCompileException, MimicException {
         mimicInterfaces(src, dst);
         mimicFields(src, dst);
         mimicConstructors(src, dst);
@@ -159,18 +168,15 @@ public class MimicCreator {
         for (final CtConstructor constructor : src.getDeclaredConstructors()) {
             System.out.println("Mimic constructor " + constructor.getName());
             boolean destHasSameConstructor = false;
-            for (CtConstructor constructorInDest : dst
-                    .getDeclaredConstructors()) {
+            for (CtConstructor constructorInDest : dst.getDeclaredConstructors()) {
                 String signature = constructor.getSignature();
                 String signatureInDest = constructorInDest.getSignature();
                 if (signatureInDest.equals(signature)) {
                     destHasSameConstructor = true;
                     System.out.println("Forwarding " + constructor.getName());
                     String key = this.key == null ? "" : (this.key + "_");
-                    final String copiedConstructorName = "_copy_" + key
-                            + constructor.getName();
-                    dst.addMethod(constructor.toMethod(copiedConstructorName,
-                            dst));
+                    final String copiedConstructorName = "_copy_" + key + constructor.getName();
+                    dst.addMethod(constructor.toMethod(copiedConstructorName, dst));
                     StringBuffer buffer = new StringBuffer();
                     for (int j = 0; j < constructor.getParameterTypes().length; j++) {
                         buffer.append(" $");
@@ -181,27 +187,22 @@ public class MimicCreator {
                     if (params.length() > 0) {
                         params = params.substring(0, params.length() - 1);
                     }
-                    String string = copiedConstructorName + "(" + params
-                            + ");\n";
+                    String string = copiedConstructorName + "(" + params + ");\n";
                     System.out.println("swinged " + string);
                     constructorInDest.insertAfter(string);
                 }
             }
             if (!destHasSameConstructor) {
                 System.out.println("Copying " + constructor.getName());
-                dst.addConstructor(CtNewConstructor
-                        .copy(constructor, dst, null));
+                dst.addConstructor(CtNewConstructor.copy(constructor, dst, null));
             }
         }
     }
 
-    public void mimicFields(CtClass src, CtClass dst) throws MimicException,
-    CannotCompileException {
+    public void mimicFields(CtClass src, CtClass dst) throws MimicException, CannotCompileException {
         for (CtField field : src.getDeclaredFields()) {
             if (hasField(dst, field)) {
-                throw new MimicException(String.format(
-                        "Class %s already has a field named %s %n",
-                        dst.getName(), field.getName()));
+                throw new MimicException(String.format("Class %s already has a field named %s %n", dst.getName(), field.getName()));
             }
             dst.addField(new CtField(field, dst));
         }
@@ -214,6 +215,7 @@ public class MimicCreator {
             }
         }
     }
+
     public void mimicMethods(CtClass src, CtClass dst, MimicMode defaultMimicMode, MimicMethod[] mimicMethods) throws CannotCompileException, NotFoundException {
         HashMap<String, MimicMode> mapNameToMimicMode = buildMimicModeMethodMap(mimicMethods);
         HashMap<String, String> mapNameToInsertionMethod = buildInsertionMethodMap(mimicMethods);
@@ -223,16 +225,13 @@ public class MimicCreator {
             boolean destHasSameMethod = false;
             for (CtMethod methodInDest : dst.getDeclaredMethods()) {
                 String signature = method.getSignature() + method.getName();
-                String signatureInDest = methodInDest.getSignature()
-                        + methodInDest.getName();
+                String signatureInDest = methodInDest.getSignature() + methodInDest.getName();
                 if (signatureInDest.equals(signature)) {
                     destHasSameMethod = true;
                     System.out.println("Forwarding " + method.getName());
                     String key = this.key == null ? "" : (this.key + "_");
-                    final String copiedMethodName = "_copy_" + key
-                            + method.getName();
-                    dst.addMethod(CtNewMethod.copy(method, copiedMethodName,
-                            dst, null));
+                    final String copiedMethodName = "_copy_" + key + method.getName();
+                    dst.addMethod(CtNewMethod.copy(method, copiedMethodName, dst, null));
 
                     CtMethod insertionMethod = null;
                     MimicMode mimicMode = defaultMimicMode;
@@ -255,20 +254,20 @@ public class MimicCreator {
                         }
                     }
                     switch (mimicMode) {
-                        case AT_BEGINNING :
+                        case AT_BEGINNING:
                             methodInDest.insertBefore(createInvocation(methodInDest, copiedMethodName));
                             break;
-                        case BEFORE_RETURN :
+                        case BEFORE_RETURN:
                             String returnString = method.getReturnType() == null ? "" : "return ";
                             methodInDest.insertAfter(returnString + createInvocation(methodInDest, copiedMethodName));
                             break;
-                        case BEFORE :
-                        case AFTER :
+                        case BEFORE:
+                        case AFTER:
                             methodInDest.instrument(new ReplaceSuperExprEditor(copiedMethodName, method, insertionMethod, mimicMode));
                             break;
-                        case BEFORE_SUPER :
-                        case AFTER_SUPER :
-                        case REPLACE_SUPER :
+                        case BEFORE_SUPER:
+                        case AFTER_SUPER:
+                        case REPLACE_SUPER:
                             methodInDest.instrument(new ReplaceSuperExprEditor(copiedMethodName, method, mimicMode));
                             break;
                         default:
@@ -302,43 +301,50 @@ public class MimicCreator {
 
         @Override
         public void edit(MethodCall m) throws CannotCompileException {
-            try {
-                // call to super
-                if (m.getMethodName().equals(insertionMethod.getName())) {
-                    String invokeCopy =  createInvocation(originalMethod, copiedMethodName);
-                    String replacement = "";
-                    switch (mode) {
-                        case AFTER_SUPER:
-                            if (!m.isSuper()) {
-                                return;
-                            }
-                        case AFTER:
-                            replacement = "$_ = $proceed($$);\n" + invokeCopy;
-                            break;
-                        case BEFORE_SUPER :
-                            if (!m.isSuper()) {
-                                return;
-                            }
-                        case BEFORE :
-                            replacement = invokeCopy + "$_ = $proceed($$);\n";
-                            break;
-                        case REPLACE_SUPER :
-                            if (!m.isSuper()) {
-                                return;
-                            }
-                            replacement = "$_ = " + invokeCopy;
-                            break;
-                        default:
-                            break;
+            switch (mode) {
+                case AFTER_SUPER:
+                case BEFORE_SUPER:
+                case REPLACE_SUPER:
+                    if (!m.isSuper()) {
+                        log.warning("An invocation of method " + insertionMethod.getName() + " was detected, without a call to super in " + m.getMethodName()
+                                + " while asking to mimic method with mode " + mode);
+                        return;
                     }
-                    System.out.println("swinged " + replacement);
-                    m.replace(replacement);
-                }
+                    break;
+                default:
+                    break;
+            }
+
+            String invokeCopy;
+            try {
+                invokeCopy = createInvocation(originalMethod, copiedMethodName);
             } catch (NotFoundException e) {
                 throw new CannotCompileException(e);
             }
+
+            // call to super
+            if (m.getMethodName().equals(insertionMethod.getName())) {
+                String replacement = "";
+                switch (mode) {
+                    case AFTER_SUPER:
+                    case AFTER:
+                        replacement = "$_ = $proceed($$);\n" + invokeCopy;
+                        break;
+                    case BEFORE_SUPER:
+                    case BEFORE:
+                        replacement = invokeCopy + "$_ = $proceed($$);\n";
+                        break;
+                    case REPLACE_SUPER:
+                        replacement = "$_ = " + invokeCopy;
+                        break;
+                    default:
+                        break;
+                }
+                System.out.println("swinged " + replacement);
+                m.replace(replacement);
+            }
+
             super.edit(m);
         }
     }
-
 }
