@@ -60,7 +60,7 @@ This means that :
 
 1. the constructor of `Example` will receive the code of the constructor of `ExampleTemplate`
 2. the method `doStuff` of `Example` will receive the code of the method `doStuff` of `ExampleTemplate`, after its call to `super.doStuff` (default mimic mode for methods).
-3. the method `doOtherStuff` of `Example` will receive the code of the method `doOtherStuff` of `ExampleTemplate`, at the beginning of its method.
+3. the method `doOtherStuff` of `Example` will receive the code of the method `doOtherStuff` of `ExampleTemplate`, at the beginning of its body.
 
 The resulting `Example` class will print : 
 
