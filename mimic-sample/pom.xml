@@ -28,6 +28,7 @@
 			<groupId>com.github.stephanenicolas.mimic</groupId>
 			<artifactId>mimic-annotations</artifactId>
 			<version>${mimic-library.version}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 

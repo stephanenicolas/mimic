@@ -1,9 +1,12 @@
 package com.github.stephanenicolas.mimic.annotations;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.CLASS)
 /**
  * Can be used to mimic a class via post processing. On the target class, add
  * this annotation.

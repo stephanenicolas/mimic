@@ -1,8 +1,11 @@
 package com.github.stephanenicolas.mimic.annotations;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Target({ })
+@Retention(RetentionPolicy.CLASS)
 /** Defines how to mimic methods. Can only be used inside {@link Mimic}. */
 public @interface MimicMethod {
 

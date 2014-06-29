@@ -17,6 +17,7 @@ import javassist.CtMethod;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import javassist.Modifier;
+import javassist.NotFoundException;
 import javassist.bytecode.Descriptor;
 
 import org.junit.Before;
@@ -189,6 +190,25 @@ public class MimicCreatorTest {
         // THEN
         Class<?> dstClass = dst.toClass();
         assertHasFooMethod(dst, dstClass);
+    }
+
+    @Test(expected=NotFoundException.class)
+    public void testMimicMethods_with_same_methods_but_non_existing_param() throws Exception {
+        // GIVEN
+        CtClass paramClass = ClassPool.getDefault().makeClass("Param" + TestCounter.testCounter);
+
+        src.addField(new CtField(CtClass.intType, "foo", src));
+        src.addMethod(CtNewMethod.make("public boolean foo(" + paramClass.getName() + " a) { return true; }", src));
+        dst.addMethod(CtNewMethod.make("public boolean foo(" + paramClass.getName() + " a) { return false;}", dst));
+
+        paramClass.detach();
+
+        // WHEN
+        mimicCreator.mimicFields(src, dst);
+        mimicCreator.mimicMethods(src, dst, MimicMode.BEFORE_RETURN, new MimicMethod[0]);
+
+        // THEN
+        //should fail
     }
 
     @Test
