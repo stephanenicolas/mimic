@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.stephanenicolas.mimic</groupId>
 	<artifactId>mimic-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>Mimic Parent</name>
 	<packaging>pom</packaging>
 	<description>Mimicing is, indeed, kind of way to bypass java single inheritance paradigm. It allows to copy all declared fields, constructors and methods in a given class into another class.</description>
@@ -25,7 +24,7 @@
 		<connection>scm:git:ssh://git@github.com/stephanenicolas/mimic.git</connection>
 		<url>git:ssh://git@github.com/stephanenicolas/mimic.git</url>
 		<developerConnection>scm:git:ssh://git@github.com/stephanenicolas/mimic.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>mimic-parent-1.0.0</tag>
 	</scm>
 
 	<licenses>
@@ -167,7 +166,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 								<pluginExecution>
