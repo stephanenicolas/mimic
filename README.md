@@ -1,4 +1,4 @@
-# mimic  
+[![Mimic Logo](https://github.com/stephanenicolas/mimic/blob/master/assets/mimic_logo.jpg)]# mimic  
 
 [![Coverage Status](https://img.shields.io/coveralls/stephanenicolas/mimic.svg)](https://coveralls.io/r/stephanenicolas/mimic?branch=master)
 [![Travis Build](https://travis-ci.org/stephanenicolas/mimic.svg?branch=master)](https://travis-ci.org/stephanenicolas/mimic)
