@@ -1,4 +1,4 @@
-### mimic  <img src='https://raw.githubusercontent.com/stephanenicolas/mimic/master/assets/mimic_logo.jpg' alt='mimic logo' width='150px'/> 
+### Mimic  <img src='https://raw.githubusercontent.com/stephanenicolas/mimic/master/assets/mimic_logo.jpg' alt='mimic logo' width='150px'/> 
 
 [![Coverage Status](https://img.shields.io/coveralls/stephanenicolas/mimic.svg)](https://coveralls.io/r/stephanenicolas/mimic?branch=master)
 [![Travis Build](https://travis-ci.org/stephanenicolas/mimic.svg?branch=master)](https://travis-ci.org/stephanenicolas/mimic)
